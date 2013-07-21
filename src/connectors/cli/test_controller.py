@@ -4,7 +4,7 @@ import src.connectors.cli.controller as controller
 import unittest
 import gnupg
 import src.utilities as utilities
-import src.santiago as santiago
+from src.santiago import Santiago
 import logging
 from datetime import datetime
 import time
@@ -15,12 +15,26 @@ class CliListener(unittest.TestCase):
     def setUp(self):
         self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
-        self.test_keyid = "1111111111111111111111111111111111111111"
+        self.test_keyid = "1" * 40
         self.original_update_time = time.time()
+        a_service = Santiago.SERVICE_NAME
 
-        self.santiago = santiago.Santiago(
-            hosting = {self.keyid: {santiago.Santiago.SERVICE_NAME: ["http://127.0.0.1"], santiago.Santiago.SERVICE_NAME+'-update-timestamp': str(self.original_update_time) }},
-            consuming = {self.keyid: {santiago.Santiago.SERVICE_NAME: ["http://127.0.0.2"], santiago.Santiago.SERVICE_NAME+'-update-timestamp': str(self.original_update_time) }},
+        hosting = {
+            self.keyid: {
+                a_service:
+                    ["http://127.0.0.1"],
+                Santiago.update_time(a_service):
+                    str(self.original_update_time) }}
+        consuming = {
+            self.keyid: {
+                a_service:
+                    ["http://127.0.0.2"],
+                Santiago.update_time(a_service):
+                    str(self.original_update_time) }},
+
+        self.santiago = Santiago(
+            hosting = hosting,
+            consuming = consuming,
             my_key_id = self.keyid,
             gpg = self.gpg,
             save_dir='src/tests/data/CLI_Controller')
@@ -29,11 +43,16 @@ class CliListener(unittest.TestCase):
 
     def test_get_hosting_clients(self):
         """Confirm hosting clients are returned correctly."""
-        self.assertEqual('{"clients": ["'+self.keyid+'"]}', self.cliListener.hosting("list", None))
+
+        self.assertEqual(
+            '{"clients": ["'+self.keyid+'"]}',
+            self.cliListener.hosting("list", None))
 
     def test_get_hosting_services(self):
         """Confirm services we host for client are returned correctly."""
-        self.assertEqual('{"services": {"freedombuddy": ["http://127.0.0.1"], "freedombuddy-update-timestamp": "'+str(self.original_update_time)+'"}, "client": "'+self.keyid+'"}', self.cliListener.hosting("list", self.keyid))
+
+        self.assertEqual(
+            '{"services": {"freedombuddy": ["http://127.0.0.1"], "freedombuddy-update-timestamp": "'+str(self.original_update_time)+'"}, "client": "'+self.keyid+'"}', self.cliListener.hosting("list", self.keyid))
 
     def test_get_hosting_service_locations(self):
         """Confirm locations we host for client x service are returned correctly."""
@@ -127,9 +146,9 @@ class CliSender(unittest.TestCase):
         self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.test_keyid = "1111111111111111111111111111111111111111"
-        self.santiago = santiago.Santiago(
-            hosting = {self.keyid: {santiago.Santiago.SERVICE_NAME: ["http://127.0.0.1"], santiago.Santiago.SERVICE_NAME+'-update-timestamp': None }},
-            consuming = {self.keyid: {santiago.Santiago.SERVICE_NAME: ["http://127.0.0.2"], santiago.Santiago.SERVICE_NAME+'-update-timestamp': None }},
+        self.santiago = Santiago(
+            hosting = {self.keyid: {Santiago.SERVICE_NAME: ["http://127.0.0.1"], Santiago.SERVICE_NAME+'-update-timestamp': None }},
+            consuming = {self.keyid: {Santiago.SERVICE_NAME: ["http://127.0.0.2"], Santiago.SERVICE_NAME+'-update-timestamp': None }},
             my_key_id = self.keyid,
             gpg = self.gpg,
             save_dir='src/tests/data/CLI_Controller')
