@@ -55,7 +55,6 @@
 * TODO Incorporate SSH/OpenVPN into FBuddy                         :services:
 * TODO Put together some documentation for FBuddy                   :cleanup:
 * TODO [#A] Debian Package FreedomBuddy                              :design:
-  SCHEDULED: <2013-04-20 Sat>
 
   See [[file:~/my/creations/source/freedombox/freedombox/freedombox-privoxy/Makefile::deb:%20debian][file:../freedombox/freedombox-privoxy/Makefile::deb: debian]]:
 
@@ -64,13 +63,15 @@
     debian: privoxy/easyprivacy.action privoxy/https_everywhere.action privoxy/easylist.action changelog
         ./make_deb.sh
         cd `find Debian -maxdepth 1 -name "freedombox*" -type d`; debuild -us -uc #-kjames@jamesvasile.com
-    
+
   #+end_src
 * TODO Write every change back to the datastore, use withsqlite      :design:
 
 ** TODO Post bug report on github
-   SCHEDULED: <2013-04-20 Sat>
 
 * TODO FBuddy should pull location data from person's LDAP entry     :design:
 
   Really, FBuddy should also [[id:cdf4f528-dde9-4981-8a64-729e8efef1a3][support the LDAP backend]] for use in a FBX.
+* TODO Introduction mechanism
+
+  See [[file:issues/introduction-mechanism.org]].

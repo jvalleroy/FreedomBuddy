@@ -1,0 +1,27 @@
+# -*- mode: org; mode: auto-fill; fill-column: 80 -*-
+
+#+TITLE: Support Key Aliases
+#+OPTIONS:   d:t
+#+LINK_UP:  ./
+#+LINK_HOME: ../
+
+* Issue
+
+  64 character key ids are hard to remember.  Users should be allowed to rename
+  keys and be presented with their locally meaningful name.  This'll be much
+  simpler after we switch to LDAP for identifier storage.
+
+* Fixes [0/1]
+
+** TODO
+
+* Discussion
+
+* Metadata
+  :PROPERTIES:
+  :Status:   Incomplete
+  :Priority: 0
+  :Owner:    Nick Daly
+  :Description:
+  :Tags:
+  :END:
