@@ -84,7 +84,7 @@ from optparse import OptionParser
 import pipes
 import sys
 
-import santiago
+import src.santiago as santiago
 import subprocess
 
 SANTIAGO_INSTANCE = BJSONRPC_SERVER = None
@@ -256,13 +256,13 @@ class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
         return self.sender.outgoing_request(*args, **kwargs)
 
     def query(self, *args, **kwargs):
-        return self.querier.POST(*args, **kwargs)
+        return self.querier.post(*args, **kwargs)
 
     def stop(self):
         """Quit the server and stop Santiago."""
 
         BJSONRPC_SERVER.stop()
-        santiago.Stop(SANTIAGO_INSTANCE).POST()
+        santiago.Stop(SANTIAGO_INSTANCE).post()
 
     def consuming(self, operation, host, service=None, location=None):
         """Update a service I consume from other hosts."""
