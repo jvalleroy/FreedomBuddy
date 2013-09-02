@@ -12,24 +12,51 @@
 
 * Fixes [0/2]
 
-** TODO Enumerate Required Data
+   KISS: export and import minimum data required to make this work.  That sounds
+   like the PGP key and the connector locations.
 
-   - PGP certificate (bi-directional)
+   How do we decide which locations should be exported for which keys?  Is there
+   a default list of services or something?  Maybe I just specify the locations
+   or pick somebody else's key to copy.
 
-   - One or more connection method's data. (receiver to sender)
+   How are the data laid out after export?  The whole mess (or at least the
+   location data) must be signed by the exported key.  Maybe just a good old
+   archive for two separate files: the public key and the signed locations.
+   That's about as simple as we can keep it.
 
-   - Connector-specific data:
+** TODO Functional Requirements [0/4]
 
-     - HTTP:
+*** TODO Export Required Data
 
-       - Server Location / Hidden Service Address
+    - [ ] PGP Public Key
 
-       - SSL Certificate
+    - [ ] FreedomBuddy Locations
 
-** TODO Create Introduction (Identity Exchange) Mechanism
+*** TODO Secure Exported Data
 
-   Users should be able to write an email or print out a document that contains
-   all the information they need to exchange data with friends.
+    - [ ] PGP Sign the data.
+
+*** TODO Import Required Data
+
+    - [ ] PGP Public Key
+
+    - [ ] FreedomBuddy Locations
+
+*** TODO Verify Imported Data
+
+    - [ ] Import the public key and verify that the statement was signed by the
+          key.  Reject the statement if not.
+
+** TODO Tests [0/1]
+
+*** TODO Round trip data
+
+    If I export data, is it imported in the same state it was when it was
+    exported?  We'll need separate FBuddies for each (otherwise the source would
+    reject its own data because of the non-new timestamp).
+
+    When FBuddy locations for X are exported by one server and then imported by
+    another, does that other server know of those same locations?
 
 * Discussion
 
