@@ -65,7 +65,5 @@ $(CFG_TEST):
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(CERTIFICATE)
-# FIXME: Where is KEYS_TEST?
-#	rm -rf $(KEYS_TEST)
 	rm -f $(TEST_CRYPT_FILE)*
 	rm -f predepend
