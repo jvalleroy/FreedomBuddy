@@ -171,21 +171,21 @@ class Santiago(object):
             protocol_connector = protocol.capitalize() + connector
 
             try:
-                # use the module's connector as the protocol's connector:
-                #
-                # connectors["https"] = connectors.https.controller.HttpsSender(
-                #         santiago=self, **settings["https"])
-                connectors[protocol] = getattr(
-                    module, protocol_connector)(
-                        santiago = self, **settings[protocol])
-
-            # log a type error, assume all others are fatal.
-            except TypeError:
-                logging.error("Could not create %s %s with %s",
-                              protocol, protocol_connector,
-                              str(settings[protocol]))
+                connector_class = getattr(module, protocol_connector)
             except AttributeError:
                 logging.debug("No %s.%s", protocol, protocol_connector)
+            else:
+                try:
+                    # use the module's connector as the protocol's connector:
+                    #
+                    # connectors["https"] = (
+                    #     connectors.https.controller.HttpsSender(
+                    #     santiago_to_use=self, **settings["https"]))
+                    connectors[protocol] = connector_class(
+                        santiago_to_use = self, **settings[protocol])
+                except Exception as e:
+                    logging.debug("Failed to create %s %s with %s", protocol,
+                                  protocol_connector, str(settings[protocol]))
 
         return connectors
 
@@ -838,19 +838,17 @@ class Santiago(object):
         - Reply to the client on the appropriate connector.
 
         """
-        # give up if we don't host this service for the sender.
-        try:
-            self.hosting[from_][self.reply_service]
-        except KeyError:
-            debug_log("no {0} hosting for {1}".format(self.reply_service,
+        # give up if we don't host this FBuddy service for the sender.
+        if not (from_ in self.hosting and
+                self.reply_service in self.hosting[from_]):
+            debug_log("No {0} hosting for {1}.".format(self.reply_service,
                                                       from_))
             return
 
         # give up if we won't host the service for the client.
-        try:
-            self.hosting[client][service]
-        except KeyError:
-            debug_log("no host for {0} in {1}".format(client, self.hosting))
+        if not (client in self.hosting and service in self.hosting[client]):
+            debug_log("No {0} hosting for {1}.".format(self.reply_service,
+                                                       from_))
             return
 
         # if we don't proxy, learn new reply locations and send the reply.
