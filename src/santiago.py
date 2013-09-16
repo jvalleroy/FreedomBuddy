@@ -947,7 +947,7 @@ class SantiagoConnector(object):
 
     """
     def __init__(self, santiago = None, *args, **kwargs):
-        super(SantiagoConnector, self).__init__(*args, **kwargs)
+        super(SantiagoConnector, self).__init__()
         self.santiago = santiago
 
     def start(self, *args, **kwargs):
