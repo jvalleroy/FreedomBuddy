@@ -98,7 +98,7 @@ def interpret_args(args, parser=None):
     parser.add_option("-k", "--key", dest="key",
                       help="Find services for or by this buddy.")
 
-    parser.add_option("-c", "--consuming", dest="consuming", 
+    parser.add_option("-c", "--consuming", dest="consuming",
                       action="store_true",help="""\
 Query the named key's FreedomBuddy service for the named service's location.
 
