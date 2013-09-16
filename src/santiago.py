@@ -38,9 +38,6 @@ import time
 import urlparse
 
 import src.pgpprocessor as pgpprocessor
-from pprint import pprint
-from datetime import datetime
-import src.utilities as utilities
 
 global DEBUG
 DEBUG = 0
@@ -450,12 +447,6 @@ class Santiago(object):
         self.hosting[client][Santiago.update_time(service)] = update
 
         return True
-
-
-        if service not in self.hosting[client]:
-            self.hosting[client][service] = list()
-        if str(service)+'-update-timestamp' not in list_to_use[client]:
-                list_to_use[client][str(service)+'-update-timestamp'] = None
 
     def create_hosting_location(self, client, service, locations, update):
         """Create a hosting service if one doesn't currently exist.
