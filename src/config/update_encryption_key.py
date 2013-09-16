@@ -12,7 +12,7 @@ if len(sys.argv) > 3:
     email_of_key_to_use = sys.argv[3]
 
 gpg = gnupg.GPG(homedir=gpg_home_directory)
-public_keys = gpg.list_keys()
+public_keys = gpg.list_keys(secret=True)
 if(email_of_key_to_use!=""):
     for key in public_keys:
         for uid in key['uids']:
