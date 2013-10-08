@@ -180,9 +180,9 @@ class Santiago(object):
                     #
                     # connectors["https"] = (
                     #     connectors.https.controller.HttpsSender(
-                    #     santiago_to_use=self, **settings["https"]))
+                    #     santiago=self, **settings["https"]))
                     connectors[protocol] = connector_class(
-                        santiago_to_use = self, **settings[protocol])
+                        santiago = self, **settings[protocol])
                 except Exception as e:
                     logging.debug("Failed to create %s %s with %s", protocol,
                                   protocol_connector, str(settings[protocol]))
@@ -250,7 +250,7 @@ class Santiago(object):
 
         for connector in self.connectors:
             getattr(sys.modules[Santiago.CONTROLLER_MODULE.format(connector)],
-                    state)(santiago_to_use=self)
+                    state)(santiago=self)
 
         debug_log("Santiago: {0}".format(state))
 
@@ -947,8 +947,8 @@ class SantiagoConnector(object):
 
     """
     def __init__(self, santiago = None, *args, **kwargs):
-        super(SantiagoConnector, self).__init__()
         self.santiago = santiago
+        super(SantiagoConnector, self).__init__(*args, **kwargs)
 
     def start(self, *args, **kwargs):
         """Starts the connector, called when initialization is complete.
