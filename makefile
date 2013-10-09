@@ -7,7 +7,7 @@ CERTIFICATE = $(DATA_DIR)/freedombuddy.crt
 CFG_TEMPLATE = $(DATA_DIR)/template.cfg
 CFG_PRODUCTION = $(DATA_DIR)/production.cfg
 CFG_TEST = $(DATA_DIR)/test.cfg
-TEST_CRYPT_FILE = test_crypt_file
+KEYS_TEST = src/tests/data/test_gpg_home/
 
 freedombuddy: $(BUILD_DIR) ssl-certificate $(BUILD_DIR)/plinth $(SCRIPTS_DIR)/tinc_rollout $(BUILD_DIR)/python-gnupg $(CFG_PRODUCTION) $(CFG_TEST) predepend 
 	@echo "Configuring FreedomBuddy for first run."
@@ -58,14 +58,13 @@ predepend:
 
 $(CFG_PRODUCTION):
 	cp $(CFG_TEMPLATE) $(CFG_PRODUCTION)
+	python src/config/update_encryption_key.py $(CFG_PRODUCTION) ~/.gnupg/
 
 $(CFG_TEST):
 	cp $(CFG_TEMPLATE) $(CFG_TEST)
+	python src/config/update_encryption_key.py $(CFG_TEST) $(KEYS_TEST)
 
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -f $(CERTIFICATE)
-# FIXME: Where is KEYS_TEST?
-#	rm -rf $(KEYS_TEST)
-	rm -f $(TEST_CRYPT_FILE)*
 	rm -f predepend

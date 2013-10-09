@@ -5,8 +5,6 @@ Currently contains a bunch of errors and config-file shortcuts.
 """
 
 import ConfigParser as configparser
-from optparse import OptionParser
-from datetime import datetime
 
 def load_config(configfile):
     """Returns data from the named config file."""
