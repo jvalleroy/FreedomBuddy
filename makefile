@@ -9,7 +9,7 @@ CFG_PRODUCTION = $(DATA_DIR)/production.cfg
 CFG_TEST = $(DATA_DIR)/test.cfg
 TEST_CRYPT_FILE = test_crypt_file
 
-freedombuddy: $(BUILD_DIR) ssl-certificate $(BUILD_DIR)/plinth $(SCRIPTS_DIR)/tinc_rollout $(BUILD_DIR)/python-gnupg $(CFG_PRODUCTION) $(CFG_TEST) predepend
+all: $(BUILD_DIR) ssl-certificate $(BUILD_DIR)/plinth $(SCRIPTS_DIR)/tinc_rollout $(BUILD_DIR)/python-gnupg $(CFG_PRODUCTION) $(CFG_TEST) predepend
 	@echo "Configuring FreedomBuddy for first run."
 	./start.sh 0
 	sleep 10
