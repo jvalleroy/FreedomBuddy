@@ -98,7 +98,7 @@ def interpret_args(args, parser=None):
     parser.add_option("-k", "--key", dest="key",
                       help="Find services for or by this buddy.")
 
-    parser.add_option("-c", "--consuming", dest="consuming", 
+    parser.add_option("-c", "--consuming", dest="consuming",
                       action="store_true",help="""\
 Query the named key's FreedomBuddy service for the named service's location.
 
@@ -189,20 +189,20 @@ Usage Instructions:
 """)
 
 
-def start(santiago_to_use, *args, **kwargs):
+def start(santiago, *args, **kwargs):
     """The final startup step in the system.
 
     Create the server.
 
     """
     global SANTIAGO_INSTANCE, BJSONRPC_SERVER
-    SANTIAGO_INSTANCE = santiago_to_use
+    SANTIAGO_INSTANCE = santiago
     BJSONRPC_SERVER = bjsonrpc.createserver(host="127.0.0.1",
                                             handler_factory=BjsonRpcHost)
     BJSONRPC_SERVER.serve()
     print("served!")
 
-def stop(santiago_to_use, *args, **kwargs):
+def stop(santiago, *args, **kwargs):
     """Shut down the server."""
 
     pass

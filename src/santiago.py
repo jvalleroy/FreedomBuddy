@@ -178,9 +178,9 @@ class Santiago(object):
                     #
                     # connectors["https"] = (
                     #     connectors.https.controller.HttpsSender(
-                    #     santiago_to_use=self, **settings["https"]))
+                    #     santiago=self, **settings["https"]))
                     connectors[protocol] = connector_class(
-                        santiago_to_use = self, **settings[protocol])
+                        santiago = self, **settings[protocol])
                 except Exception as e:
                     logging.debug("Failed to create %s %s with %s", protocol,
                                   protocol_connector, str(settings[protocol]))
@@ -247,8 +247,8 @@ class Santiago(object):
             getattr(connector, state)()
 
         for connector in self.connectors:
-            getattr(sys.modules[Santiago.CONTROLLER_MODULE.format(connector)], 
-			state)(santiago_to_use=self)
+            getattr(sys.modules[Santiago.CONTROLLER_MODULE.format(connector)],
+                    state)(santiago=self)
 
         debug_log("Santiago: {0}".format(state))
 
@@ -497,7 +497,7 @@ class Santiago(object):
         """
         if (isinstance(service, basestring)) and (service.endswith('-update-timestamp')):
             return False
-        
+
         if not self.create_consuming_service(host, service, update):
             return False
         self.consuming[host][service] = list()
@@ -953,9 +953,9 @@ class SantiagoConnector(object):
     "controllers" in the MVC paradigm.
 
     """
-    def __init__(self, santiago_to_use = None, *args, **kwargs):
-        super(SantiagoConnector, self).__init__()
-        self.santiago = santiago_to_use
+    def __init__(self, santiago = None, *args, **kwargs):
+        self.santiago = santiago
+        super(SantiagoConnector, self).__init__(*args, **kwargs)
 
     def start(self, *args, **kwargs):
         """Starts the connector, called when initialization is complete.

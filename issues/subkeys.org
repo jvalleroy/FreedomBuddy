@@ -1,0 +1,35 @@
+# -*- mode: org; mode: auto-fill; fill-column: 80 -*-
+
+#+TITLE: Correctly Handle Subkeys
+#+OPTIONS:   d:t
+#+LINK_UP:  ./
+#+LINK_HOME: ../
+
+* Issue
+
+  FreedomBuddy doesn't know a thing about (PGP, or other) subkeys.  All it knows
+  is the key used to sign the message.  If a user adds a subkey to their primary
+  key, FreedomBuddy correctly determines that the subkey was not the key we
+  agreed to exchange data with and hangs up.
+
+* Fixes [0/1]
+
+** TODO
+
+* Discussion
+
+** [2013-10-08 Tue 17:57] Nick
+
+   Right now, I have no idea what to do about this.  What is the correct fix?
+   Do we even need a fix?  If I couldn't figure out why I couldn't exchange
+   messages with myself after adding a signing subkey to my keyring, it's
+   probably unexpected behavior.
+
+* Metadata
+  :PROPERTIES:
+  :Status:   Incomplete
+  :Priority: 0
+  :Owner:    Nick Daly
+  :Description:
+  :Tags:
+  :END:
