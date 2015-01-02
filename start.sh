@@ -38,14 +38,17 @@ then
     # do EVERYTHING in multiple terminals.
 
     # start fbuddy + cli client
-    lxterm -e "python src/santiago_run.py" &
+    x-terminal-emulator -e "python src/santiago_run.py" &
 
     # start https client
-    lxterm -e "python src/connectors/https/controller.py --listen" &
-    lxterm -e "python src/connectors/https/controller.py --monitor" &
+    x-terminal-emulator -e \
+	"python src/connectors/https/controller.py --listen" &
+    x-terminal-emulator -e \
+	"python src/connectors/https/controller.py --monitor" &
 
     # start a browser for the monitor
-    lxterm -e "sleep 5 && x-www-browser https://127.0.0.1:8081/freedombuddy" &
+    x-terminal-emulator -e \
+	"sleep 5 && x-www-browser https://127.0.0.1:8081/freedombuddy" &
 
     echo "Press return to quit."
     read X
