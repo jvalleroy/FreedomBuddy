@@ -15,3 +15,4 @@ predepend
 src/scripts/
 .coverage
 random_seed
+trustdb.gpg
