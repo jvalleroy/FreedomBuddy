@@ -41,7 +41,7 @@ $(BUILD_DIR)/cert-depends: $(BUILD_DIR)
 	touch $(BUILD_DIR)/cert-depends
 
 $(BUILD_DIR)/python-gnupg: $(BUILD_DIR)
-	test -d $(BUILD_DIR)/python-gnupg || git clone git://github.com/tomgalloway/python-gnupg.git $(BUILD_DIR)/python-gnupg
+	test -d $(BUILD_DIR)/python-gnupg || git clone git://github.com/isislovecruft/python-gnupg.git $(BUILD_DIR)/python-gnupg
 	cd $(BUILD_DIR)/python-gnupg; git pull
 
 $(BUILD_DIR)/plinth: $(BUILD_DIR)
