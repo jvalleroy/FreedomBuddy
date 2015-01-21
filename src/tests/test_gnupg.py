@@ -30,7 +30,7 @@ class CryptionTest(GnuPGWrapper):
     def test_encrypt_then_decrypt(self):
         """Confirm data is equal after encrypt/decrypt"""
     	#Encrypt data
-        encrypted_data = self.gpg.encrypt(str(self.message), self.recipient)
+        encrypted_data = self.gpg.encrypt(str(self.message), self.key_id)
         #Decrypt data
         decrypted_data = self.gpg.decrypt(str(encrypted_data))
         #Test decrypted is same as original
@@ -45,4 +45,3 @@ class CryptionTest(GnuPGWrapper):
 
 if __name__ == "__main__":
     unittest.main()
-
