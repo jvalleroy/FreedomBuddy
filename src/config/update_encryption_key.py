@@ -11,7 +11,7 @@ if len(sys.argv) >= 3:
 if len(sys.argv) > 3:
     email_of_key_to_use = sys.argv[3]
 
-gpg = gnupg.GPG(homedir=gpg_home_directory)
+gpg = gnupg.GPG(gnupghome=gpg_home_directory)
 public_keys = gpg.list_keys(secret=True)
 if(email_of_key_to_use!=""):
     for key in public_keys:
@@ -28,4 +28,3 @@ config.set("pgpprocessor", "KEYID", public_key)
 
 with open(config_file_to_update, "wb") as new_config:
  	config.write(new_config)
-

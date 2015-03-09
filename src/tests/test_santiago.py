@@ -40,9 +40,9 @@ class SantiagoTest(unittest.TestCase):
 
 class SantiagoSetupTests(SantiagoTest):
     """Does Santiago get created correctly?"""
-    """hosting=None, consuming=None, 
+    """hosting=None, consuming=None,
                  my_key_id=0, reply_service=None,
-                 save_dir="src/tests/data/SantiagoSetupTests", 
+                 save_dir="src/tests/data/SantiagoSetupTests",
                  save_services=True,
                  gpg=None, force_sender=None, *args, **kwargs"""
     def test_create_santiago_with_https_listener(self):
@@ -84,10 +84,10 @@ class UpdateTime(SantiagoTest):
     def setUp(self):
         """Create a request."""
 
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
-        self.santiago = santiago.Santiago(my_key_id = self.keyid, 
+        self.santiago = santiago.Santiago(my_key_id = self.keyid,
                                           gpg = self.gpg,
                                           save_dir='src/tests/data/IncomingRequest')
 
@@ -96,9 +96,9 @@ class UpdateTime(SantiagoTest):
         self.original_update_time = time.time()
 
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [1],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": self.original_update_time})
 
@@ -107,16 +107,16 @@ class UpdateTime(SantiagoTest):
 
     def wrap_message(self, message):
         """The standard wrapping method for these tests."""
-	
+
         return str(self.gpg.encrypt(json.dumps(message),
                                     (str(self.keyid)),
-                                    default_key=self.keyid))
+                                    sign=self.keyid))
 
     def test_identical_times_fail(self):
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": self.original_update_time})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -126,9 +126,9 @@ class UpdateTime(SantiagoTest):
     def test_times_greater_than_now_fail(self):
         date_to_use = self.original_update_time + 120
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -138,9 +138,9 @@ class UpdateTime(SantiagoTest):
     def test_times_less_than_last_update_fail(self):
         date_to_use = self.original_update_time - 120
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -151,9 +151,9 @@ class UpdateTime(SantiagoTest):
         date_to_use = self.original_update_time + 1
         sleep(2)
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -163,9 +163,9 @@ class UpdateTime(SantiagoTest):
     def test_update_date_as_none(self):
         date_to_use = None
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -178,10 +178,10 @@ class IncomingRequest(SantiagoTest):
     def setUp(self):
         """Create a request."""
 
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
-        self.santiago = santiago.Santiago(my_key_id = self.keyid, 
+        self.santiago = santiago.Santiago(my_key_id = self.keyid,
                                           gpg = self.gpg,
                                           save_dir='src/tests/data/IncomingRequest')
 
@@ -190,18 +190,18 @@ class IncomingRequest(SantiagoTest):
         self.original_update_time = time.time()
 
         self.request = { "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [1],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": self.original_update_time}
 
     def wrap_message(self, message):
         """The standard wrapping method for these tests."""
-	
+
         return str(self.gpg.encrypt(json.dumps(message),
                                     (str(self.keyid)),
-                                    default_key=self.keyid))
+                                    sign=self.keyid))
 
     def test_ensure_string_handled(self):
         """If a string is passed to incoming_request, convert it to a single value in a list."""
@@ -231,21 +231,21 @@ class IncomingRequest(SantiagoTest):
         """If a service isnt in incoming_request requests queue then don't process request."""
         self.assertEqual({}, self.santiago.consuming)
         self.request = self.wrap_message(self.request)
-        
+
         self.assertEqual(None, self.santiago.incoming_request([self.request]))
         self.assertEqual({}, self.santiago.consuming)
 
     def test_service_update_recorded(self):
-        """If a service is updated, we need to send a valid update datetime 
+        """If a service is updated, we need to send a valid update datetime
         as well to keep track of latest values.
         """
         with self.assertRaises(KeyError) as context:
             self.santiago.consuming[self.keyid][santiago.Santiago.SERVICE_NAME]['update']
         date_to_use = time.time()
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME)
@@ -263,9 +263,9 @@ class IncomingRequest(SantiagoTest):
         original_request = self.request
         date_to_use = time.time()
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": None, "locations": [2],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         #Sent t+1 - Server updates service to a new state.
@@ -295,9 +295,9 @@ class IncomingRequest(SantiagoTest):
         self.assertEqual(self.original_update_time, self.santiago.consuming[self.keyid][santiago.Santiago.SERVICE_NAME+'-update-timestamp'])
         date_to_use = time.time()
         self.request = self.wrap_message({ "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME+'-update-timestamp', 
+                         "service": santiago.Santiago.SERVICE_NAME+'-update-timestamp',
                          "reply_to": None, "locations": [1],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": date_to_use})
         self.santiago.requests[self.keyid].add(santiago.Santiago.SERVICE_NAME+'-update-timestamp')
@@ -362,19 +362,19 @@ class UnpackRequest(SantiagoTest):
     def setUp(self):
         """Create a request."""
 
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
-        self.santiago = santiago.Santiago(my_key_id = self.keyid, 
+        self.santiago = santiago.Santiago(my_key_id = self.keyid,
                                           gpg = self.gpg,
                                           save_dir='src/tests/data/UnpackRequest')
         self.valid_request_version = self.santiago.REQUEST_VERSION
         self.valid_reply_versions = self.santiago.SUPPORTED_REPLY_VERSIONS
 
         self.request = { "host": self.keyid, "client": self.keyid,
-                         "service": santiago.Santiago.SERVICE_NAME, 
+                         "service": santiago.Santiago.SERVICE_NAME,
                          "reply_to": [1], "locations": [1],
-                         "request_version": self.valid_request_version, 
+                         "request_version": self.valid_request_version,
                          "reply_versions": self.valid_reply_versions,
                          "update": time.time() }
 
@@ -395,10 +395,10 @@ class UnpackRequest(SantiagoTest):
 
     def wrap_message(self, message):
         """The standard wrapping method for these tests."""
-	
+
         return str(self.gpg.encrypt(json.dumps(message),
                                     (str(self.keyid)),
-                                    default_key=self.keyid))
+                                    sign=self.keyid))
 
     def test_valid_message(self):
         """A message that should pass does pass normally."""
@@ -530,7 +530,7 @@ class HandleRequest(SantiagoTest):
         overridden to record that the method is called.
 
         """
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(
@@ -625,7 +625,7 @@ class HostingAndConsuming(SantiagoTest):
     def setUp(self):
         """Do a good bit of setup to make this a nicer test-class.
         """
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(
@@ -709,7 +709,7 @@ class OutgoingRequest(SantiagoTest):
 
         def __init__(self):
             self.destination = self.crypt = self.request = None
-            self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+            self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         def outgoing_request(self, request, destination):
             """Decrypt and record the pertinent details about the request."""
@@ -720,12 +720,12 @@ class OutgoingRequest(SantiagoTest):
 
     def setUp(self):
         """Create an encryptable request."""
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(
             my_key_id = self.keyid,
-            consuming = { self.keyid: { santiago.Santiago.SERVICE_NAME: 
+            consuming = { self.keyid: { santiago.Santiago.SERVICE_NAME:
                                         ( "https://1", )}},
             gpg = self.gpg,
             save_dir='src/tests/data/OutgoingRequest')
@@ -759,7 +759,7 @@ class OutgoingRequest(SantiagoTest):
             host = self.host, client = self.client,
             service = self.service, locations = self.locations, reply_to = self.reply_to)
 
-###Unsure how to make this test pass as a value of update is returned 
+###Unsure how to make this test pass as a value of update is returned
 ###with a value dependant on when test ran
 #    def test_valid_message(self):
 #        """Are valid messages properly encrypted and delivered?"""
@@ -797,10 +797,10 @@ class CreateHosting(SantiagoTest):
 
     """
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
-        self.santiago = santiago.Santiago(my_key_id = self.keyid, 
+        self.santiago = santiago.Santiago(my_key_id = self.keyid,
                                           gpg = self.gpg,
                                           save_dir='src/tests/data/CreateHosting')
 
@@ -835,7 +835,7 @@ class CreateConsuming(SantiagoTest):
 
     """
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(my_key_id = self.keyid, gpg=self.gpg,
@@ -862,9 +862,9 @@ class CreateConsuming(SantiagoTest):
     def test_add_consuming_location(self):
         """Confirm location is added to consuming list"""
         self.assertNotIn(self.host, self.santiago.consuming)
-        self.santiago.create_consuming_location(self.host, 
+        self.santiago.create_consuming_location(self.host,
                                                  self.service,
-                                                [self.location], 
+                                                [self.location],
                                                 time.time())
 
         self.assertIn(self.location,
@@ -885,7 +885,7 @@ class ArgumentTests(SantiagoTest):
 
         url = "sharky_with_angry_hats"
         service = "omg its a fake service name, haha."
-        gpg_to_use = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        gpg_to_use = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         configfile = "src/tests/data/test_gpg.cfg"
 
@@ -923,7 +923,7 @@ class ArgumentTests(SantiagoTest):
         """
         url = "sharky_with_angry_hats"
         service = "omg its a fake service name, haha."
-        gpg_to_use = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        gpg_to_use = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
 
         configfile = "src/tests/data/test_gpg.cfg"
 
@@ -939,7 +939,7 @@ class ArgumentTests(SantiagoTest):
         consuming = { keyid: { service: [url], service+'-update-timestamp': None } }
 
         freedombuddy = santiago.Santiago(hosting=hosting, consuming=consuming,
-                                         save_services=False, my_key_id=keyid, 
+                                         save_services=False, my_key_id=keyid,
                                          gpg=gpg_to_use)
         freedombuddy1 = santiago.Santiago(my_key_id=keyid, gpg=gpg_to_use,
                                           save_dir='src/tests/data/ArgumentTests')
@@ -954,7 +954,7 @@ class Hosting(SantiagoTest):
     """Tests Hosting Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(
@@ -994,7 +994,7 @@ class HostedClient(SantiagoTest):
     """Tests HostedClient Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.date_to_use = time.time()
 
@@ -1007,8 +1007,8 @@ class HostedClient(SantiagoTest):
 
     def test_santiago_hosted_client_get(self):
         hostedClient = santiago.HostedClient(self.santiago)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}},
                          hostedClient.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_hosted_client_get_with_invalid_client(self):
@@ -1019,28 +1019,28 @@ class HostedClient(SantiagoTest):
     def test_santiago_hosted_client_put(self):
         hostedClient = santiago.HostedClient(self.santiago)
         hostedClient.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',"2", self.date_to_use)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {'2':[], '2-update-timestamp': self.date_to_use, 
-                         santiago.Santiago.SERVICE_NAME: [1], santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {'2':[], '2-update-timestamp': self.date_to_use,
+                         santiago.Santiago.SERVICE_NAME: [1], santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}},
                          hostedClient.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_hosted_client_ensure_put_existing_service_does_not_overwrite_service(self):
         hostedClient = santiago.HostedClient(self.santiago)
         hostedClient.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME, self.date_to_use)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.date_to_use}}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.date_to_use}},
                          hostedClient.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_hosted_client_delete(self):
         hostedClient = santiago.HostedClient(self.santiago)
         hostedClient.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME, self.date_to_use)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {}}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {}},
                          hostedClient.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_hosted_client_delete_invalid_service(self):
         hostedClient = santiago.HostedClient(self.santiago)
         hostedClient.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628','2', self.date_to_use)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': None}},
                          hostedClient.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_hosted_client_delete_invalid_client_and_invalid_service(self):
@@ -1055,7 +1055,7 @@ class HostedService(SantiagoTest):
     """Tests HostedClient Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.initial_update = time.time()
         self.test_update = time.time()
@@ -1069,55 +1069,55 @@ class HostedService(SantiagoTest):
 
     def test_santiago_hosted_service_get(self):
         hostedService = santiago.HostedService(self.santiago)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_hosted_service_get_with_incorrect_service(self):
         hostedService = santiago.HostedService(self.santiago)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '1', 'locations': None}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '1', 'locations': None},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '1'))
 
     def test_santiago_hosted_service_put(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',"2","3", self.test_update)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '2', 'locations': ['3']}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '2', 'locations': ['3']},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2'))
 
     def test_santiago_hosted_service_put_add_to_existing_service(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME,[1,3], self.test_update)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1,3]}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1,3]},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_hosted_service_delete(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME,1)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': []}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': []},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_hosted_service_delete_invalid_location(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME,2)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_hosted_service_delete_invalid_service_and_invalid_location(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2', 2)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_hosted_service_delete_invalid_service_and_valid_location(self):
         hostedService = santiago.HostedService(self.santiago)
         hostedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2', 1)
-        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'client': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          hostedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
 class Consuming(SantiagoTest):
     """Tests Consuming Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
 
         self.santiago = santiago.Santiago(
@@ -1157,7 +1157,7 @@ class ConsumedHost(SantiagoTest):
     """Tests ConsumedHost Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.initial_update = time.time()
         self.test_update = time.time()
@@ -1171,8 +1171,8 @@ class ConsumedHost(SantiagoTest):
 
     def test_santiago_consumed_host_get(self):
         consumedHost = santiago.ConsumedHost(self.santiago)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}},
                          consumedHost.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_consumed_host_get_with_invalid_host(self):
@@ -1183,28 +1183,28 @@ class ConsumedHost(SantiagoTest):
     def test_santiago_consumed_host_put(self):
         consumedHost = santiago.ConsumedHost(self.santiago)
         consumedHost.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',"2", self.test_update)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {'2': [], '2-update-timestamp': self.test_update, 
-                         santiago.Santiago.SERVICE_NAME: [1], santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {'2': [], '2-update-timestamp': self.test_update,
+                         santiago.Santiago.SERVICE_NAME: [1], santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}},
                          consumedHost.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_consumed_host_ensure_put_existing_service_does_not_overwrite_service(self):
         consumedHost = santiago.ConsumedHost(self.santiago)
         consumedHost.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME, self.test_update)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.test_update}}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.test_update}},
                          consumedHost.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_consumed_host_delete(self):
         consumedHost = santiago.ConsumedHost(self.santiago)
         consumedHost.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628', 'services': {}}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628', 'services': {}},
                          consumedHost.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_consumed_host_delete_invalid_service(self):
         consumedHost = santiago.ConsumedHost(self.santiago)
         consumedHost.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2', self.test_update)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628', 'services': {santiago.Santiago.SERVICE_NAME: [1], 
-                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628', 'services': {santiago.Santiago.SERVICE_NAME: [1],
+                         santiago.Santiago.SERVICE_NAME+'-update-timestamp': self.initial_update}},
                          consumedHost.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628'))
 
     def test_santiago_consumed_host_delete_invalid_host_and_invalid_service(self):
@@ -1219,7 +1219,7 @@ class ConsumedService(SantiagoTest):
     """Tests consumedService Rest interface."""
 
     def setUp(self):
-        self.gpg = gnupg.GPG(homedir='src/tests/data/test_gpg_home')
+        self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.initial_update = time.time()
         self.test_update = time.time()
@@ -1233,48 +1233,48 @@ class ConsumedService(SantiagoTest):
 
     def test_santiago_consumed_service_get(self):
         consumedService = santiago.ConsumedService(self.santiago)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_consumed_service_get_with_incorrect_service(self):
         consumedService = santiago.ConsumedService(self.santiago)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '1', 'locations': None}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '1', 'locations': None},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '1'))
 
     def test_santiago_consumed_service_put(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',"2","3", time.time())
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '2', 'locations': ['3']}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': '2', 'locations': ['3']},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2'))
 
     def test_santiago_consumed_service_put_add_to_existing_service(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.put('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME, [1,3], self.test_update)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1,3]}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1,3]},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_consumed_service_delete(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME,1)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': []}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': []},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_consumed_service_delete_invalid_location(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628',santiago.Santiago.SERVICE_NAME,2)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_consumed_service_delete_invalid_service_and_invalid_location(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2', 2)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
     def test_santiago_consumed_service_delete_invalid_service_and_valid_location(self):
         consumedService = santiago.ConsumedService(self.santiago)
         consumedService.delete('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', '2', 1)
-        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]}, 
+        self.assertEqual({'host': '95801F1ABE01C28B05ADBE5FA7C860604DAE2628','service': santiago.Santiago.SERVICE_NAME, 'locations': [1]},
                          consumedService.get('95801F1ABE01C28B05ADBE5FA7C860604DAE2628', santiago.Santiago.SERVICE_NAME))
 
 if __name__ == "__main__":
