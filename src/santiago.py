@@ -418,7 +418,7 @@ class Santiago(object):
 
         if not valid:
             debug_log(
-                "{0}.{1}: invalid update time: {2} vs {3} (now is {4})".format(
+                "{0}.{1}: invalid update time: {2} vs {3} (it's now {4})".format(
                     peer, service, update, previous_update, time.time()))
 
         return valid

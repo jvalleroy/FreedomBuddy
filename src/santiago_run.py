@@ -20,6 +20,12 @@ import webbrowser
 
 import src.santiago as santiago
 
+
+config_dirs = ("/usr/share/santiago/",
+                "~/.santiago/",
+                "./data/")
+
+
 def parse_args(args):
     """Interpret args passed in on the command line."""
 
@@ -100,6 +106,29 @@ def configure_connectors(protocols, connectors):
 
     return listeners, senders, monitors
 
+def load_services(conf_dirs):
+    """If we can't find a service file, load the default services.
+
+    This is handy the first time we boot the system.
+
+    """
+    for config_dir in reversed(conf_dirs):
+        mykey_config = os.exists(expanduser(config_dir + mykey + ".dat"))
+        if mykey_config:
+            break
+
+    if mykey_config:
+        hosting = consuming = None
+    else:
+        service = "freedombuddy"
+        hosting = { mykey: { service: [url],
+                             service + "-monitor" : [url + "/" + service] } }
+        consuming = { mykey: { service: [url],
+                             service + "-monitor" : [url + "/" + service] } }
+
+    return hosting, consuming
+
+
 if __name__ == "__main__":
 
     (options, args) = parse_args(sys.argv)
@@ -114,22 +143,25 @@ if __name__ == "__main__":
         logging.getLogger("cherrypy.error").setLevel(logging.DEBUG)
 
     # load configuration settings
-    mykey, protocols, connectors, force_sender, url = (
-        load_config(options.config))
+    if options.config:
+        mykey, protocols, connectors, force_sender, url = (
+            load_config(options.config))
+    else:
+        config = {}
+        for config_dir in config_dirs:
+            config = (merge_config(config_dir + "production.cfg", config))
+        mykey = config_options["mykey"]
+        protocols = config_options["protocols"]
+        connectors = config_options["connectors"]
+        force_sender = config_options["force_sender"]
+        url = config_options["url"]
 
     # create listeners and senders
     listeners, senders, monitors = configure_connectors(protocols, connectors)
 
-    # configure system
-    # TODO Set this automatically when no relevant data/(keyid).dat file exists.
-    if options.default_services:
-        service = "freedombuddy"
-        hosting = { mykey: { service: [url],
-                             service + "-monitor" : [url + "/freedombuddy"] } }
-        consuming = { mykey: { service: [url],
-                             service + "-monitor" : [url + "/freedombuddy"] } }
-    else:
-        hosting = consuming = None
+    # if we can't find a config file, load default services.
+    hosting, consuming = load_services(config_dirs)
+
     santiago.debug_log("Santiago!")
     freedombuddy = santiago.Santiago(listeners, senders, hosting, consuming,
                                      my_key_id=mykey, monitors=monitors,
@@ -141,4 +173,4 @@ if __name__ == "__main__":
         if "https" in protocols:
             webbrowser.open_new_tab(url + "/freedombuddy")
 
-    santiago.debug_log("Santiago finished!")
+    santiago.debug_log("Santiago startup finished!")

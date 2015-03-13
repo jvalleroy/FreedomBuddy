@@ -14,7 +14,9 @@ def load_config(configfile):
     return config
 
 def get_config_values(config):
-    """Load data from the specified configuration file."""
+    """Load data from the specified configuration file.
+
+    Load None instead of erroring."""
 
     listify_string = lambda x: [item.strip() for item in x.split(",")]
 
@@ -23,6 +25,7 @@ def get_config_values(config):
         safe_load(config, "connectors", "protocols"))
     connectors = {}
     force_sender = safe_load(config, "connectors", "force_sender")
+    url = safe_load(config, "general", "url")
 
     if protocols == ['']:
         raise RuntimeError("No protocols detected.  Have you run 'make'?")
@@ -40,7 +43,20 @@ def get_config_values(config):
             connectors[connector] = dict(
                 safe_load(config, connector, None, {}))
 
-    return mykey, protocols, connectors, force_sender
+    return mykey, protocols, connectors, force_sender, url
+
+def merge_config(config_file, config_options):
+    """Override loaded config data with new data."""
+
+    all_keys = ("mykey", "protocols", "connectors", "force_sender", "url")
+
+    new_data = dict(zip(all_keys, get_config_values(config_file)))
+
+    for option in all_keys:
+        if new_data[option] is not None:
+            config_options[option] = new_data[option]
+
+    return config_options
 
 def configure_connectors(protocols, connectors):
 
@@ -73,8 +89,12 @@ def multi_sign(message, gpg, keyid, iterations=3):
     return messages
 
 def safe_load(config, section, key=None, default=None):
-    """Safely load data from a configuration file."""
+    """Safely load data from a configuration file.
 
+    If the key does not exist in the section, or the section does not
+    exist, return the default value instead of raising an exception.
+
+    """
     try:
         if key is not None:
             return config.get(section, key)
