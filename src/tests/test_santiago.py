@@ -891,8 +891,7 @@ class ArgumentTests(SantiagoTest):
 
         config = utilities.load_config(configfile)
 
-        (keyid, protocols, connectors, force_sender) = utilities.get_config_values(
-            config)
+        (keyid, protocols, connectors, force_sender, url) = utilities.get_config_values(config)
 
         listeners, senders, monitors = utilities.configure_connectors(
             protocols, connectors)
@@ -929,8 +928,7 @@ class ArgumentTests(SantiagoTest):
 
         config = utilities.load_config(configfile)
 
-        (keyid, protocols, connectors, force_sender) = utilities.get_config_values(
-            config)
+        (keyid, protocols, connectors, force_sender, url) = utilities.get_config_values(config)
 
         listeners, senders, monitors = utilities.configure_connectors(
             protocols, connectors)

@@ -1,4 +1,5 @@
-#! /usr/bin/env python # -*- mode: auto-fill; fill-column: 80 -*-
+#! /usr/bin/env python
+# -*- mode: python; mode: auto-fill; fill-column: 80 -*-
 
 """Tests for the Utilities functions.
 
@@ -83,7 +84,7 @@ class ConfigureConnectors(unittest.TestCase):
 
     def test_load_from_config(self):
         config_file = utilities.load_config(self.config)
-        (mykey, protocols, connectors, force_sender) = utilities.get_config_values(config_file)
+        (mykey, protocols, connectors, force_sender, url) = utilities.get_config_values(config_file)
         listeners, senders, monitors = utilities.configure_connectors(protocols, connectors)
         self.assertEqual('8888', listeners['https']['socket_port'])
         self.assertEqual('data/freedombuddy.crt', listeners['https']['ssl_certificate'])
