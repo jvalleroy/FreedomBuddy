@@ -84,7 +84,7 @@ def multi_sign(message, gpg, keyid, iterations=3):
         raise GPGKeyNotSpecifiedError
 
     for i in range(iterations):
-        messages.append(str(gpg.sign(messages[i], default_key=keyid)))
+        messages.append(str(gpg.sign(messages[i])))
 
     return messages
 
