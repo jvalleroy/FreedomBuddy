@@ -11,7 +11,7 @@ export PYTHONPATH
 if [ "$1" -eq "0" ]
 then
     # initial run
-    python src/santiago_run.py -d "$@" &
+    python src/santiago_run.py "$@" &
 
 elif [ "$1" -eq "1" ]
 then

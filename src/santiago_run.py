@@ -14,6 +14,7 @@ necessary, that you can then provide to yourself or others.
 import ConfigParser as configparser
 import logging
 from optparse import OptionParser
+import os
 import sys
 import src.utilities as utilities
 import webbrowser
@@ -40,10 +41,6 @@ well.""")
     parser.add_option("-c", "--config", dest="config",
                       default="data/production.cfg",
                       help="""The configuration file to use.""")
-
-    parser.add_option("-d", "--default-services", dest="default_services",
-                      action="store_true", help="""\
-Whether to reset the list of hosted and consumed services to the default.""")
 
     parser.add_option("-f", "--forget", dest="forget_services",
                       action="store_true", help="""\
@@ -113,7 +110,8 @@ def load_services(conf_dirs):
 
     """
     for config_dir in reversed(conf_dirs):
-        mykey_config = os.exists(expanduser(config_dir + mykey + ".dat"))
+        mykey_config = os.path.exists(os.path.expanduser(
+                config_dir + mykey + ".dat"))
         if mykey_config:
             break
 
@@ -163,10 +161,11 @@ if __name__ == "__main__":
     hosting, consuming = load_services(config_dirs)
 
     santiago.debug_log("Santiago!")
-    freedombuddy = santiago.Santiago(listeners, senders, hosting, consuming,
-                                     my_key_id=mykey, monitors=monitors,
-                                     save_dir="data",
-                                     force_sender=force_sender)
+    freedombuddy = santiago.Santiago(
+        listeners, senders, hosting, consuming,
+        my_key_id=mykey, monitors=monitors,
+        save_dir="data", save_services=(not options.forget),
+        force_sender=force_sender)
 
     # run
     with freedombuddy:
