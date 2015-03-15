@@ -621,7 +621,7 @@ if __name__ == "__main__":
         santiago = lambda: None
         santiago.locale = "en"
         santiago.debug_log = lambda *args, **kwargs: None
-        HttpsMonitor(santiago_to_use=santiago, socket_port=port,
+        HttpsMonitor(santiago=santiago, socket_port=port,
                      ssl_certificate=cert, ssl_private_key=key)
         cherrypy.engine.start()
     else:
