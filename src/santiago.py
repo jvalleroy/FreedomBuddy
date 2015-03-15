@@ -278,7 +278,7 @@ class Santiago(object):
         try:
             data = self.shelf[key]
         except KeyError as error:
-            logging.exception(error)
+            logging.debug(error)
             data = dict()
         else:
             for message in pgpprocessor.Unwrapper(data, gpg=self.gpg):
@@ -290,7 +290,7 @@ class Santiago(object):
                 # http://docs.python.org/2/library/ast.html#ast.literal_eval
                 data = ast.literal_eval(str(message))
             except (ValueError, SyntaxError) as error:
-                logging.exception(error)
+                logging.debug(error)
                 data = dict()
 
         debug_log("found {0}: {1}".format(key, data))
