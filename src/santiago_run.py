@@ -164,7 +164,7 @@ if __name__ == "__main__":
     freedombuddy = santiago.Santiago(
         listeners, senders, hosting, consuming,
         my_key_id=mykey, monitors=monitors,
-        save_dir="data", save_services=(not options.forget),
+        save_dir="data", save_services=(not options.forget_services),
         force_sender=force_sender)
 
     # run
