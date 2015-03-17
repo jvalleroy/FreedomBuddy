@@ -1,14 +1,23 @@
-# -*- mode: org; fill-column: 80 -*-
+# -*- mode: org; mode: org-indent; mode: visual-line -*-
 
 #+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)
 
+* TODO Reuse the https controller's bjsonrpc connection.
+:LOGBOOK:
+CLOCK: [2015-03-16 Mon 19:07]
+:END:
+
+* TODO make adding a service/location work again.
+
+Figure out which ones aren't tested for and make sure those are tested.
+
 * TODO reorganize and consolidate this todo file.                      :meta:
 * TODO figure out what other request types FBuddies should request   :design:
-   from one another.
+from one another.
 
-   - request "all services for this client"
+- request "all services for this client"
 
-      be able to hide some services from the client?
+be able to hide some services from the client?
 
 * TODO Service time expiry                                           :expiry:
 
@@ -16,62 +25,60 @@
 
 * TODO support editing-in-place well for HTML frontend             :requests:
 
-   I really should.  Remove + Add isn't acceptable in complex
-   situations.
+I really should.  Remove + Add isn't acceptable in complex situations.
 
 * TODO additional (convenience) service discovery                  :requests:
 
-   let clients find:
+let clients find:
 
-   - all the services I host for them
+- all the services I host for them
 
-   - all the hosts who host a specific service
+- all the hosts who host a specific service
 
-   - allow some services to be hidden?
+- allow some services to be hidden?
 
 * TODO Message Queuing and Rate Limiting                           :requests:
 
-- Process a maximum of X MB over Y requests per unit time Z per
-   friend.
+- Process a maximum of X MB over Y requests per unit time Z per friend.
 
 - Messages that exceed that maximum are queued for the next time unit.
 
 * TODO make list of oustanding requests query-able                 :requests:
 * TODO display errors when we quit because we can't initialize      :cleanup:
 
-   The port could already be in use.
+The port could already be in use.
 
-   The cert-file might not exist.
+The cert-file might not exist.
 
-   The service config file doesn't exist (or is empty).
+The service config file doesn't exist (or is empty).
 
 * TODO Update documentation.                                        :cleanup:
 * TODO Version the database.                                         :design:
 * TODO Split out database code.                                      :design:
-  :PROPERTIES:
-  :ID:       cdf4f528-dde9-4981-8a64-729e8efef1a3
-  :END:
+:PROPERTIES:
+:ID:       cdf4f528-dde9-4981-8a64-729e8efef1a3
+:END:
 * TODO Split out message parsing code.                               :design:
 * TODO Incorporate SSH/OpenVPN into FBuddy                         :services:
 * TODO Put together some documentation for FBuddy                   :cleanup:
 * TODO [#A] Debian Package FreedomBuddy                              :design:
 
-  See [[file:~/my/creations/source/freedombox/freedombox/freedombox-privoxy/Makefile::deb:%20debian][file:../freedombox/freedombox-privoxy/Makefile::deb: debian]]:
+See [[file:~/my/creations/source/freedombox/freedombox/freedombox-privoxy/Makefile::deb:%20debian][file:../freedombox/freedombox-privoxy/Makefile::deb: debian]]:
 
-  #+begin_src sh
-    deb: debian
-    debian: privoxy/easyprivacy.action privoxy/https_everywhere.action privoxy/easylist.action changelog
-        ./make_deb.sh
-        cd `find Debian -maxdepth 1 -name "freedombox*" -type d`; debuild -us -uc #-kjames@jamesvasile.com
+#+begin_src sh
+deb: debian
+debian: privoxy/easyprivacy.action privoxy/https_everywhere.action privoxy/easylist.action changelog
+./make_deb.sh
+cd `find Debian -maxdepth 1 -name "freedombox*" -type d`; debuild -us -uc #-kjames@jamesvasile.com
 
-  #+end_src
+#+end_src
 * TODO Write every change back to the datastore, use withsqlite      :design:
 
 ** TODO Post bug report on github
 
 * TODO FBuddy should pull location data from person's LDAP entry     :design:
 
-  Really, FBuddy should also [[id:cdf4f528-dde9-4981-8a64-729e8efef1a3][support the LDAP backend]] for use in a FBX.
+Really, FBuddy should also [[id:cdf4f528-dde9-4981-8a64-729e8efef1a3][support the LDAP backend]] for use in a FBX.
 * TODO Introduction mechanism
 
-  See [[file:issues/introduction-mechanism.org]].
+See [[file:issues/introduction-mechanism.org]].
