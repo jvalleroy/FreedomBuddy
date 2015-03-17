@@ -1,17 +1,23 @@
 """Tests for the CLI controller."""
 
-import src.connectors.cli.controller as controller
-import unittest
-import gnupg
-import src.utilities as utilities
-from src.santiago import Santiago
-import logging
+import bjsonrpc
 from datetime import datetime
+import gnupg
+import logging
 import time
 from time import sleep
+import unittest
+
+import src.connectors.cli.controller as controller
+from src.santiago import Santiago
+import src.utilities as utilities
 
 class CliListener(unittest.TestCase):
     """Test main code call."""
+    @classmethod
+    def setUpClass(cls):
+        cls.connect = bjsonrpc.connect()
+
     def setUp(self):
         self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
         self.keyid = utilities.load_config("src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
@@ -38,8 +44,7 @@ class CliListener(unittest.TestCase):
             my_key_id = self.keyid,
             gpg = self.gpg,
             save_dir='src/tests/data/CLI_Controller')
-        self.cliListener = controller.CliListener(santiago_to_use = self.santiago)
-        #self.cliListener.start(8001)
+        self.cliListener = controller.CliListener(santiago = self.santiago)
 
     def test_get_hosting_clients(self):
         """Confirm hosting clients are returned correctly."""
@@ -52,7 +57,7 @@ class CliListener(unittest.TestCase):
         """Confirm services we host for client are returned correctly."""
 
         self.assertEqual(
-            '{"services": {"freedombuddy": ["http://127.0.0.1"], "freedombuddy-update-timestamp": "'+str(self.original_update_time)+'"}, "client": "'+self.keyid+'"}', self.cliListener.hosting("list", self.keyid))
+            '{"services": {"freedombuddy": ["http://127.0.0.1"], "freedombuddy-update-timestamp": "'+str(self.original_update_time)+'"}, "client": "'+self.keyid+'"}', self.santiago.hosting("list", self.keyid))
 
     def test_get_hosting_service_locations(self):
         """Confirm locations we host for client x service are returned correctly."""
@@ -152,7 +157,7 @@ class CliSender(unittest.TestCase):
             my_key_id = self.keyid,
             gpg = self.gpg,
             save_dir='src/tests/data/CLI_Controller')
-        self.cliSender = controller.CliSender(santiago_to_use = self.santiago, 
+        self.cliSender = controller.CliSender(santiago = self.santiago,
                                               https_sender = "python src/connectors/https/controller.py --outgoing $REQUEST --destination $DESTINATION",
                                               cli_sender = "echo $DESTINATION $REQUEST")
 

@@ -160,13 +160,13 @@ def validate_args(options, parser=None):
         pass
     elif options.stop:
         pass
-    # if consuming or hosting, key is required.
+    # if consuming or hosting, then require key.
     elif (options.key != None and
              (options.consuming, options.hosting) != (None, None)):
         pass
     elif  (options.consuming, options.hosting) != (None, None):
         pass
-    # if query, key and service are required.
+    # if query, then require key and service.
     elif None not in (options.query, options.key, options.service):
         pass
     else:
@@ -209,7 +209,7 @@ def stop(santiago, *args, **kwargs):
 
 
 class CliListener(santiago.SantiagoListener):
-    """The command line interface FBuddy Listener."""
+    """The command line interface FBuddy Listener.  Unnecessary."""
 
     pass
 
@@ -330,13 +330,24 @@ def load_connector(attr):
         pass
 
 
-def main():
+def parse_options(args):
+    """Parse commandline args."""
 
     parser = OptionParser()
-    (options, args) = interpret_args(sys.argv[1:], parser)
+    (options, args) = interpret_args(args[1:], parser)
     validate_args(options, parser)
 
-    connect = bjsonrpc.connect()
+    return options
+
+def run_call(options, connect=None):
+    """Print the result of the action.
+
+    connect: The bjsonrpc connection to use, or None to create a new one, with
+    defaults.
+
+    """
+    if connect is None:
+        connect = bjsonrpc.connect()
 
     if options.request:
         print(connect.call.incoming_request([options.request]))
@@ -353,7 +364,12 @@ def main():
     else:
         help_me()
 
+def main(args):
+
+    options = parse_options(args)
+    run_call(options)
+
 
 if __name__ == "__main__":
 
-    main()
+    main(sysv.argv)

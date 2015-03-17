@@ -23,7 +23,7 @@ import logging
 import urllib, urlparse
 
 import src.santiago as santiago
-from src.utilities import HTTPSConnectorInvalidCombinationError
+import src.utilities as utilities
 
 
 COMMAND_LINE = "python src/connectors/cli/controller.py"
@@ -345,7 +345,7 @@ class HttpHosting(santiago.Hosting, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(put)
         elif delete:
@@ -386,7 +386,7 @@ class HttpHostedClient(santiago.HostedClient, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(client, put)
         elif delete:
@@ -430,7 +430,7 @@ class HttpHostedService(santiago.HostedService, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(client, service, put)
         elif delete:
@@ -474,7 +474,7 @@ class HttpConsuming(santiago.Consuming, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(put)
         elif delete:
@@ -516,7 +516,7 @@ class HttpConsumedHost(santiago.ConsumedHost, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(host, put)
         elif delete:
@@ -561,7 +561,7 @@ class HttpConsumedService(santiago.ConsumedService, MonitorUtilities):
 
         """
         if put and delete:
-            raise HTTPSConnectorInvalidCombinationError()
+            raise utilities.HTTPSConnectorInvalidCombinationError()
         elif put:
             self.put(host, service, put)
         elif delete:
@@ -600,13 +600,23 @@ def interpret_args(args, parser):
 
     return parser.parse_args(args)
 
-if __name__ == "__main__":
-    parser = OptionParser()
-    (options, args_local) = interpret_args(sys.argv[1:], parser)
+def parse_config():
     # FIXME this should be read from the config file.
-    port = 8080
-    cert = "data/freedombuddy.crt"
-    key = "data/freedombuddy.crt"
+    return { "port": 8080,
+             "cert": "data/freedombuddy.crt",
+             "key": "data/freedombuddy.crt", }
+
+def main(options, port, cert, key, start_httpserver = None):
+    """Parse options and start a monitor or listener.
+
+    options: The options parsed from the command line.
+
+    port: The port to listen for connections on.
+
+    start_httpserver: Useful for testing.  If False, don't start the HTTP
+    server.
+
+    """
 
     if options.outgoing and options.destination:
         # assume this came from the cli-connector, remove ' from pipes.quote
@@ -615,14 +625,27 @@ if __name__ == "__main__":
     elif options.listen:
         HttpsListener(socket_port=port,
                       ssl_certificate=cert, ssl_private_key=key)
-        cherrypy.engine.start()
+        if start_httpserver == None:
+            start_httpserver = True
     elif options.monitor:
+        # TODO don't do this after we read the real configs.
         port += 1
         santiago = lambda: None
         santiago.locale = "en"
         santiago.debug_log = lambda *args, **kwargs: None
         HttpsMonitor(santiago=santiago, socket_port=port,
                      ssl_certificate=cert, ssl_private_key=key)
-        cherrypy.engine.start()
+        if start_httpserver == None:
+            start_httpserver = True
     else:
         print("TODO: Write Help.")
+
+    if start_httpserver:
+        cherrypy.engine.start()
+
+if __name__ == "__main__":
+    parser = OptionParser()
+    (options, args_local) = interpret_args(sys.argv[1:], parser)
+    # TODO config = utilities.parse_config()
+
+    main(options, **parse_config())
