@@ -203,15 +203,10 @@ def start(santiago, *args, **kwargs):
     print("served!")
 
 def stop(santiago, *args, **kwargs):
-    """Shut down the server."""
+    """Shut down the server.  Handled by BjsonRpcHost.stop()."""
 
     pass
 
-
-class CliListener(santiago.SantiagoListener):
-    """The command line interface FBuddy Listener.  Unnecessary."""
-
-    pass
 
 class CliSender(santiago.SantiagoSender):
     """The command line sender for FBuddy"""
@@ -233,7 +228,6 @@ class CliSender(santiago.SantiagoSender):
         code = code.replace("$REQUEST", pipes.quote(str(request)))
 
         subprocess.call(code)
-
 
 class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
     """
@@ -274,7 +268,7 @@ class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
 
         return self._change(operation, True, client, service, location)
 
-    def _change(self, operation, i_host, key, service=None, location=None):
+    def _change(self, operation, i_host, key=None, service=None, location=None):
         """Change Santiago's known clients, servers, services, and locations."""
 
         if operation == "add":
@@ -326,7 +320,7 @@ def load_connector(attr):
     """
     try:
         return getattr(SANTIAGO_INSTANCE, attr)["cli"]
-    except KeyError:
+    except (KeyError, TypeError):
         pass
 
 

@@ -1,4 +1,5 @@
-#! /usr/bin/env python # -*- mode: auto-fill; fill-column: 80 -*-
+#! /usr/bin/env python
+# -*- mode: python; mode: auto-fill; fill-column: 80 -*-
 
 """Tests for the Utilities functions.
 
@@ -18,13 +19,11 @@ class ParseArgs(unittest.TestCase):
         self.assertEqual(None, self.options.trace)
         self.assertEqual("data/production.cfg", self.options.config)
         self.assertEqual(None, self.options.verbose)
-        self.assertEqual(None, self.options.default_services)
         self.assertEqual(None, self.options.forget_services)
 
     def test_values_returned_when_short_arguments_passed_in(self):
-        (self.options, self.arguments) = santiago_run.parse_args(["-c","te","-v","-d","-f","-t"])
+        (self.options, self.arguments) = santiago_run.parse_args(["-c","te","-v","-f","-t"])
         self.assertEqual("te", self.options.config)
         self.assertEqual(1, self.options.verbose)
         self.assertEqual(1, self.options.trace)
-        self.assertEqual(1, self.options.default_services)
         self.assertEqual(1, self.options.forget_services)
