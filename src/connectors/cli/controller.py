@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # -*- mode: python; mode: auto-fill; fill-column: 80; -*-
 
+import time
+
 """Prints FreedomBuddy locations to screen.
 
 This script is designed to show where a buddy is providing a service.  It
@@ -258,18 +260,23 @@ class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
         BJSONRPC_SERVER.stop()
         santiago.Stop(SANTIAGO_INSTANCE).post()
 
-    def consuming(self, operation, host, service=None, location=None):
+    def consuming(self, operation, host, service=None, location=None, update=None):
         """Update a service I consume from other hosts."""
 
-        return self._change(operation, False, host, service, location)
+        return self._change(operation, False, host, service, location, update)
 
-    def hosting(self, operation, client, service=None, location=None):
+    def hosting(self, operation, client, service=None, location=None, update=None):
         """Update a service I am hosting for other clients."""
 
-        return self._change(operation, True, client, service, location)
+        return self._change(operation, True, client, service, location, update)
 
-    def _change(self, operation, i_host, key=None, service=None, location=None):
+    def _change(self, operation, i_host,
+                key=None, service=None, location=None,
+                update=None):
         """Change Santiago's known clients, servers, services, and locations."""
+
+        if update == None:
+            update = time.time()
 
         if operation == "add":
             action = "put"
@@ -309,7 +316,8 @@ class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
         #     x.GET(key, service, location)
         return json.dumps(getattr(actor(SANTIAGO_INSTANCE), action)(key,
                                                   service=service,
-                                                  location=location))
+                                                  location=location,
+                                                  update=update))
 
 def load_connector(attr):
     """Load the cli-specific connector from the Santiago Instance.
@@ -366,4 +374,4 @@ def main(args):
 
 if __name__ == "__main__":
 
-    main(sysv.argv)
+    main(sys.argv)
