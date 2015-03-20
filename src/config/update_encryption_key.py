@@ -1,4 +1,6 @@
-#! /usr/bin/env python # -*- mode: auto-fill; fill-column: 80 -*-
+#! /usr/bin/env python
+# -*- mode: python; mode: auto-fill; fill-column: 80 -*-
+
 import sys
 import ConfigParser as configparser
 import gnupg
@@ -24,7 +26,6 @@ else:
 config = configparser.ConfigParser()
 config.read(config_file_to_update)
 config.set("pgpprocessor", "KEYID", public_key)
-
 
 with open(config_file_to_update, "wb") as new_config:
  	config.write(new_config)
