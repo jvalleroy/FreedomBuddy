@@ -2,14 +2,18 @@
 
 #+TODO: TODO(t) WAIT(w@/!) | DONE(d!) CANCELED(c@)
 
+* TODO make adding a service/location work again.
+
+Figure out which ones aren't tested for and make sure those are tested.
+
+** [2015-03-22 Sun 17:58] PythonGnuPG Changed!
+
+All messages are failing because [[file:src/santiago.py::request%20%3D%20self.gpg.decrypt(request)][request = self.gpg.decrypt(request)]] no longer sets request.fingerprint!  This means the requests aren't trusted and dropped!  Is this because the message isn't singed or just because it forgot to?  Is this a PythonGnuPG-Vinay-0.3.6 issue only?
+
 * TODO Reuse the https controller's bjsonrpc connection.
 :LOGBOOK:
 CLOCK: [2015-03-16 Mon 19:07]
 :END:
-
-* TODO make adding a service/location work again.
-
-Figure out which ones aren't tested for and make sure those are tested.
 
 * TODO reorganize and consolidate this todo file.                      :meta:
 * TODO figure out what other request types FBuddies should request   :design:

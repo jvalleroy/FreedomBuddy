@@ -1,8 +1,6 @@
 #! /usr/bin/env python
 # -*- mode: python; mode: auto-fill; fill-column: 80; -*-
 
-import time
-
 """Prints FreedomBuddy locations to screen.
 
 This script is designed to show where a buddy is providing a service.  It
@@ -84,7 +82,9 @@ import bjsonrpc
 import json
 from optparse import OptionParser
 import pipes
+import shlex
 import sys
+import time
 
 import src.santiago as santiago
 import subprocess
@@ -210,6 +210,11 @@ def stop(santiago, *args, **kwargs):
     pass
 
 
+class CliListener(santiago.SantiagoListener):
+    """The command line interface FBuddy Listener."""
+
+    pass
+
 class CliSender(santiago.SantiagoSender):
     """The command line sender for FBuddy"""
     def __init__(self, https_sender = None, cli_sender = None, *args, **kwargs):
@@ -229,7 +234,7 @@ class CliSender(santiago.SantiagoSender):
         code = code.replace("$DESTINATION", pipes.quote(str(destination)))
         code = code.replace("$REQUEST", pipes.quote(str(request)))
 
-        subprocess.call(code)
+        subprocess.call(shlex.split(code))
 
 class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
     """
@@ -241,6 +246,7 @@ class BjsonRpcHost(bjsonrpc.handlers.BaseHandler):
 
     """
     def _setup(self):
+        global SANTIAGO_INSTANCE
         self.listener = load_connector("listeners")
         self.sender = load_connector("senders")
         self.querier = santiago.Query(SANTIAGO_INSTANCE)

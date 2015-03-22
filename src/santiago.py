@@ -661,8 +661,10 @@ class Santiago(object):
 
         """
         try:
-            self.outgoing_request(
-                host, self.my_key_id, service, None, self.consuming[host][self.reply_service])
+            self.outgoing_request(host, self.my_key_id,
+                                  host, self.my_key_id,
+                                  service, None,
+                self.consuming[host][self.reply_service])
         except Exception:
             logging.exception("Couldn't handle %s.%s", host, service)
 
