@@ -911,7 +911,9 @@ class Santiago(object):
             return
         if not self.i_am(client):
             debug_log("not client {0}".format(client))
-            self.proxy()
+            self.proxy([from_, to_, host, client,
+                        service, locations, reply_to,
+                        request_version, reply_versions, update])
             return
 
         # if we have reply locations, update those locations.
