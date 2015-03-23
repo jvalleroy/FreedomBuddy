@@ -422,8 +422,8 @@ class Santiago(object):
                     peer, service, update, previous_update, time.time()))
 
         return valid
-
 
+
     def create_hosting_client(self, client):
         """Create a hosting client if one doesn't currently exist."""
 
@@ -719,7 +719,7 @@ class Santiago(object):
                   "request_version": Santiago.REQUEST_VERSION,
                   "reply_versions": list(Santiago.SUPPORTED_REPLY_VERSIONS),
                   "update": time.time(),}),
-            (str(host)))
+            (str(host)), sign=self.my_key_id)
 
     def incoming_request(self, requests):
         """Provide a service to a client.
