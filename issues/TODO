@@ -10,6 +10,22 @@ Figure out which ones aren't tested for and make sure those are tested.
 
 All messages are failing because [[file:src/santiago.py::request%20%3D%20self.gpg.decrypt(request)][request = self.gpg.decrypt(request)]] no longer sets request.fingerprint!  This means the requests aren't trusted and dropped!  Is this because the message isn't singed or just because it forgot to?  Is this a PythonGnuPG-Vinay-0.3.6 issue only?
 
+** [2015-03-23 Mon 11:11] We Removed Sign...
+
+No, we just had removed the ~sign~ argument from ~gnupg.GPG.encrypt~.
+
+** [2015-03-23 Mon 11:16] 3 Bugs
+
+1. sign removed on encrypt in package_request
+2. arguments to handle_request removed: use kwargs!
+3. cli-controller.query didn't split args.
+
+** TODO Test: Outgoing Encrypted Requests are Signed.
+
+** TODO Test: services are saved and reloaded without modification
+
+* TODO Load HTTPS ports from config.
+
 * TODO Reuse the https controller's bjsonrpc connection.
 :LOGBOOK:
 CLOCK: [2015-03-16 Mon 19:07]
