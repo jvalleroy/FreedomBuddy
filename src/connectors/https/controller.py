@@ -601,12 +601,21 @@ def interpret_args(args, parser):
     return parser.parse_args(args)
 
 def parse_config():
-    # FIXME this should be read from the config file.
-    return { "port": 8080,
-             "cert": "data/freedombuddy.crt",
-             "key": "data/freedombuddy.crt", }
+    config = utilities.load_default_configs()
 
-def main(options, port, cert, key, start_httpserver = None):
+    return {"listener_port": utilities.safe_load(config, "https-listener",
+                                                 "socket_port", "8080"),
+            "monitor_port": utilities.safe_load(config, "https-monitor",
+                                                "socket_port", "8081"),
+            "cert": utilities.safe_load(config, "https-monitor",
+                                        "ssl_certificate",
+                                        "data/freedombuddy.crt"),
+            "key": utilities.safe_load(config, "https-monitor",
+                                        "ssl_certificate",
+                                        "data/freedombuddy.crt")}
+
+def main(options, listener_port, monitor_port, cert, key,
+         start_httpserver = None):
     """Parse options and start a monitor or listener.
 
     options: The options parsed from the command line.
@@ -623,17 +632,15 @@ def main(options, port, cert, key, start_httpserver = None):
         options.outgoing = options.outgoing.strip("'")
         HttpsSender().outgoing_request(options.outgoing, options.destination)
     elif options.listen:
-        HttpsListener(socket_port=port,
+        HttpsListener(socket_port=listener_port,
                       ssl_certificate=cert, ssl_private_key=key)
         if start_httpserver == None:
             start_httpserver = True
     elif options.monitor:
-        # TODO don't do this after we read the real configs.
-        port += 1
         santiago = lambda: None
         santiago.locale = "en"
         santiago.debug_log = lambda *args, **kwargs: None
-        HttpsMonitor(santiago=santiago, socket_port=port,
+        HttpsMonitor(santiago=santiago, socket_port=monitor_port,
                      ssl_certificate=cert, ssl_private_key=key)
         if start_httpserver == None:
             start_httpserver = True
@@ -646,6 +653,5 @@ def main(options, port, cert, key, start_httpserver = None):
 if __name__ == "__main__":
     parser = OptionParser()
     (options, args_local) = interpret_args(sys.argv[1:], parser)
-    # TODO config = utilities.parse_config()
 
     main(options, **parse_config())
