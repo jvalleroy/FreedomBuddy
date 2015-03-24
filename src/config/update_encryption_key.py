@@ -20,12 +20,13 @@ if(email_of_key_to_use!=""):
         for uid in key['uids']:
             if(uid.endswith("<"+email_of_key_to_use+">")):
                 public_key = key['fingerprint']
+                break
 else:
     public_key = public_keys[0]['fingerprint']
 
 config = configparser.ConfigParser()
 config.read(config_file_to_update)
-config.set("pgpprocessor", "KEYID", public_key)
+config.set("general", "keyid", public_key)
 
 with open(config_file_to_update, "wb") as new_config:
- 	config.write(new_config)
+    config.write(new_config)

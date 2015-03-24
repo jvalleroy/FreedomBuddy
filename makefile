@@ -1,7 +1,6 @@
 #! /usr/bin/env make
 
 DATA_DIR = data
-BUILD_DIR = build
 SCRIPTS_DIR = src/scripts
 CERTIFICATE = $(DATA_DIR)/freedombuddy.crt
 CFG_TEMPLATE = $(DATA_DIR)/template.cfg
@@ -13,7 +12,7 @@ all: ssl-certificate $(CFG_PRODUCTION) $(CFG_TEST)
 
 ssl-certificate: $(CERTIFICATE)
 
-$(CERTIFICATE): $(BUILD_DIR)
+$(CERTIFICATE):
 ifeq ($(wildcard $(CERTIFICATE)),)
 	sudo make-ssl-cert generate-default-snakeoil
 	sudo make-ssl-cert /usr/share/ssl-cert/ssleay.cnf $(CERTIFICATE)
@@ -24,9 +23,6 @@ else
 	echo $(CERTIFICATE) already exists
 endif
 
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
-
 $(CFG_PRODUCTION):
 	cp $(CFG_TEMPLATE) $(CFG_PRODUCTION)
 	python src/config/update_encryption_key.py $(CFG_PRODUCTION) ~/.gnupg/
@@ -36,6 +32,4 @@ $(CFG_TEST):
 	python src/config/update_encryption_key.py $(CFG_TEST) $(KEYS_TEST)
 
 clean:
-	rm -rf $(BUILD_DIR)
-	rm -f $(CERTIFICATE)
-	rm -f predepend
+	rm -f $(CERTIFICATE) $(CFG_PRODUCTION) $(CFG_TEST)
