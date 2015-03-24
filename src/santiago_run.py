@@ -21,11 +21,6 @@ import webbrowser
 import src.santiago as santiago
 
 
-CONFIG_DIRS = ("/usr/share/santiago/",
-                "~/.santiago/",
-                "./data/")
-
-
 def parse_args(args):
     """Interpret args passed in on the command line."""
 
@@ -146,7 +141,8 @@ if __name__ == "__main__":
         logging.getLogger("cherrypy.error").setLevel(logging.DEBUG)
 
     # load configuration settings
-    config_data = utilities.load_configs(options.config or [x + "production.cfg" for x in CONFIG_DIRS])
+    config_data = (utilities.load_configs(options.config) if options.config else
+                   utilities.load_default_configs())
 
     mykey = config_data.get("general", "keyid")
     protocols = listify_string(config_data.get("connectors", "protocols"))
@@ -157,7 +153,7 @@ if __name__ == "__main__":
     listeners, senders, monitors = configure_connectors(protocols, connectors)
 
     # if we can't find a service config file, load default services.
-    hosting, consuming = load_services(CONFIG_DIRS, config_data)
+    hosting, consuming = load_services(utilities.CONFIG_DIRS, config_data)
 
     santiago.debug_log("Santiago!")
     freedombuddy = santiago.Santiago(
@@ -169,8 +165,6 @@ if __name__ == "__main__":
     # run
     with freedombuddy:
         if "https" in protocols:
-            webbrowser.open_new_tab("https://localhost:" +
-                                    monitors["https"]["socket_port"] +
-                                    "/freedombuddy")
+            webbrowser.open_new_tab(hosting[mykey]["freedombuddy-monitor"])
 
     santiago.debug_log("Santiago startup finished!")

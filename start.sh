@@ -23,7 +23,7 @@ echo $! >> santiago.pid
 
 # start a browser for the monitor
 x-terminal-emulator -e \
-"sleep 5 && x-www-browser https://127.0.0.1:8081/freedombuddy" &
+"sleep 5 && x-www-browser https://localhost:8081/freedombuddy" &
 echo $! >> santiago.pid
 
 

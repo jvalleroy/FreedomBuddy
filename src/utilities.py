@@ -6,6 +6,21 @@ Currently contains a bunch of errors and config-file shortcuts.
 
 import ConfigParser as configparser
 
+
+# each of these ends in "/" so we don't prefix file names with /.
+# what would happen if the directory were null then?
+# https://github.com/ValveSoftware/steam-for-linux/issues/3671 would happen.
+CONFIG_DIRS = ("/usr/share/santiago/",
+                "~/.santiago/",
+                "./data/")
+
+
+def load_default_configs():
+    """Load production.cfg from each of the CONFIG_DIRS."""
+
+    return load_configs([x + "production.cfg" for x in CONFIG_DIRS])
+
+
 def load_configs(config_files):
     """Returns data from the named config file."""
 
