@@ -20,7 +20,6 @@ class ParseArgs(unittest.TestCase):
     def test_default_values_returned_when_no_arguments_passed(self):
         (self.options, self.arguments) = santiago_run.parse_args([""])
         self.assertEqual(None, self.options.trace)
-        self.assertEqual("data/production.cfg", self.options.config)
         self.assertEqual(None, self.options.verbose)
         self.assertEqual(None, self.options.forget_services)
 
