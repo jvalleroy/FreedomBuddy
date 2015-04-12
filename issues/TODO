@@ -24,13 +24,21 @@ No, we just had removed the ~sign~ argument from ~gnupg.GPG.encrypt~.
 
 ** TODO Test: services are saved and reloaded without modification
 
+I rely on this behavior, I should probably test for it.
+
+** TODO Test: Round-trip test.
+
 * DONE Load HTTPS ports from config.
 CLOSED: [2015-03-23 Mon 21:28]
 :LOGBOOK:
 - State "DONE"       from "TODO"       [2015-03-23 Mon 21:28]
 :END:
 
-* TODO Move config into ~/.santiago
+* DONE Move config into ~/.santiago
+CLOSED: [2015-04-05 Sun 11:19]
+:LOGBOOK:
+- State "DONE"       from "TODO"       [2015-04-05 Sun 11:19]
+:END:
 
 * TODO Reuse the https controller's bjsonrpc connection.
 :LOGBOOK:
