@@ -1,4 +1,4 @@
-# -*- mode: org; mode: auto-fill; fill-column: 80 -*-
+# -*- mode: org; mode: org-indent; mode: visual-line -*-
 
 #+TITLE: Command Line Arguments
 #+OPTIONS: d:t
@@ -7,113 +7,83 @@
 
 * Command Line Arguments
 
-  There are three different sets of command line arguments.
+There are three different sets of command line arguments.
 
-  1. Processing incoming requests.
+1. Processing incoming requests.
 
-  2. Sending replies.
+2. Sending replies.
 
-  3. Updating local data.
+3. Updating local data.
 
 ** Processing Requests
 
-   When a connector receives a request, it passes it along to the FreedomBuddy
-   command line client, which then communicates with the server to handle the
-   request.
+When a connector receives a request, it passes it along to the FreedomBuddy command line client, which then communicates with the server to handle the request.
 
-   The =--request= option must be followed by the request's text:
+The =--request= option must be followed by the request's text:
 
-   : freedombuddy --request "-----BEGIN PGP BLOCK-----\n#3FA2309DBC..."
+: freedombuddy --request "-----BEGIN PGP BLOCK-----\n#3FA2309DBC..."
 
-   : cat request.gpg | freedombuddy --request -
+: cat request.gpg | freedombuddy --request -
 
-   This should be handled automatically by protocol-specific listeners, but
-   manual intervention is always possible.
+This should be handled automatically by protocol-specific listeners, but manual intervention is always possible.
 
 ** Sending Replies
 
-   Replies are handled automatically by the FreedomBuddy system.
+Replies are handled automatically by the FreedomBuddy system.
 
 ** Updating Local Data
 
-   This set of command line arguments is broken down into two types: those that
-   list data, and those that modify data.  A command is made up of up to four
-   parts:
+This set of command line arguments is broken down into two types: those that list data, and those that modify data.  A command is made up of up to four parts:
 
-   1. The action (list, add, remove): how the rest of the request will affect
-      the underlying data structure.
+1. The action (list, add, remove): how the rest of the request will affect the underlying data structure.
 
-      - list :: Does not modify data, merely returns the existing data on
-                stdout.
+- list :: Does not modify data, merely returns the existing data on stdout.
 
-      - add :: Modifies data.  Adds a new entry (or hierarchy of entries) to the
-               data store, containing the other specified pieces.
+- add :: Modifies data.  Adds a new entry (or hierarchy of entries) to the data store, containing the other specified pieces.
 
-      - remove :: Modifies data.  Removes an existing entry (or hierarchy of
-                  entries) from the data store.  For example, if you removed a
-                  ~host~, all of that host's ~services~ and ~locations~ would
-                  also be removed.
+- remove :: Modifies data.  Removes an existing entry (or hierarchy of entries) from the data store.  For example, if you removed a ~host~, all of that host's ~services~ and ~locations~ would also be removed.
 
-   2. The server (hosting, consuming): whether we're modifying the list of
-      services that we provide for others or whether we're modifying the list of
-      services we receive from others.
+2. The server (hosting, consuming): whether we're modifying the list of services that we provide for others or whether we're modifying the list of services we receive from others.
 
-      Servers are currently identified by PGP/GPG key ids.  This will likely be
-      expanded in the future, though I'm not sure how.
+Servers are currently identified by PGP/GPG key ids.  This will likely be expanded in the future, though I'm not sure how.
 
-      Note that it doesn't make much sense to modify service locations that
-      others have said they'll provide for you.  Thus, in most cases, you'll
-      pass "hosting" as the argument when modifying data.  You'll probably pass
-      "consuming" when you want to list data.
+Note that it doesn't make much sense to modify service locations that others have said they'll provide for you.  Thus, in most cases, you'll pass "hosting" as the argument when modifying data.  You'll probably pass "consuming" when you want to list data.
 
-   3. The service's name: this part lists the name of the service we care about.
-      Can be any valid text.  Probably should be human readable, when intended
-      for human consumption.
+3. The service's name: this part lists the name of the service we care about.  Can be any valid text.  Probably should be human readable, when intended for human consumption.
 
-   4. Locations: the true meat of the request.  This part can modify the
-      locations that a service is hosted or consumed from.
+4. Locations: the true meat of the request.  This part can modify the locations that a service is hosted or consumed from.
 
-   Parts must be supplied in order (i.e., asking for the service without a host
-   ID makes no sense, in this construct).  While such requests may actually be
-   meaningful (perhaps you're looking for a list of hosts and locations for that
-   particular service), I have better things to do right now than interpret all
-   24 or so possible argument combinations; we're stuck with a limited
-   vocabulary for now.
+Parts must be supplied in order (i.e., asking for the service without a host ID makes no sense, in this construct).  While such requests may actually be meaningful (perhaps you're looking for a list of hosts and locations for that particular service), I have better things to do right now than interpret all 24 or so possible argument combinations; we're stuck with a limited vocabulary for now.
 
-   Also see the notes on the [[./data-structure.org][data structure]].
+Also see the notes on the [[./data-structure.org][data structure]].
 
-*** TODO Update to Match [[file:../src/connectors/cli/controller.py][CLI Cnotroller]]'s documentation
+*** TODO Update to Match [[file:../src/connectors/cli/controller.py][CLI Controller]]'s documentation
 
-    It's pretty inconsistent now, but I just want to get something on
-    disk and out of my head at this point.
+It's pretty inconsistent now, but I just want to get something on disk and out of my head at this point.
 
 * Formal Representation
 
-  The formal representation is as follows.  Interpretation of the relevant
-  arguments should be self-explanatory:
+The formal representation is as follows.  Interpretation of the relevant arguments should be self-explanatory:
 
-  #+begin_src text
-    [--(list|add|remove)
-        [--(host|client) [PGP-KEY-ID
-            [--service [SERVICE
-                [--location [LOCATION]]]]]]]
+#+begin_src text
+[--(list|add|remove)
+[--(host|client) [PGP-KEY-ID
+[--service [SERVICE
+[--location [LOCATION]]]]]]]
 
-    [--request REQUEST-TEXT]
+[--request REQUEST-TEXT]
 
-    [--help]
-  #+end_src
+[--help]
+#+end_src
 
-  - If no arguments are given, help text appears.
+- If no arguments are given, help text appears.
 
-  - If no command argument is given, ~list~ is implied.
+- If no command argument is given, ~list~ is implied.
 
-  This construction allows the end user to modify the locations of both locally
-  hosted services (services hosted for others) as well as external service
-  locations (services others host for you).  I don't know why you'd want to
-  modify the latter, but the option's there anyway.
+This construction allows the end user to modify the locations of both locally hosted services (services hosted for others) as well as external service locations (services others host for you).  I don't know why you'd want to modify the latter, but the option's there anyway.
 
 * Metadata
-  :PROPERTIES:
-  :Description: Command Line Interface Arguments
-  :Tags: cli
-  :END:
+:PROPERTIES:
+:Description: Command Line Interface Arguments
+:Tags: cli
+:END:
