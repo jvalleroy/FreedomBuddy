@@ -8,7 +8,9 @@ functionality but these should be tested independently as well.
 
 """
 
+import shlex
 import subprocess
+import time
 import unittest
 
 import src.santiago_run as santiago_run
@@ -41,14 +43,15 @@ class EndToEnd(unittest.TestCase):
     """
     def setUp(self, *args, **kwargs):
         super(EndToEnd, self).setUp(*args, **kwargs)
-        self.fbuddy = subprocess.Popen(["start.sh"])
+        self.fbuddy = subprocess.Popen("./start.sh".split())
+        time.sleep(2)
 
     def tearDown(self, *args, **kwargs):
         super(EndToEnd, self).tearDown(*args, **kwargs)
         self.fbuddy.terminate()
 
     def load_default_configs(self):
-        return utilities.load_configs([x + "test.cfg"
+        return utilities.load_config([x + "test.cfg"
                                        for x in utilities.CONFIG_DIRS])
 
 class RoundTrip(EndToEnd):
@@ -79,22 +82,32 @@ class RoundTrip(EndToEnd):
         super(RoundTrip, self).setUp(*args, **kwargs)
 
         self.config = self.load_default_configs()
-        self.mykey = utilities.safe_load(config, "general", "keyid")
+        self.mykey = utilities.safe_load(self.config, "general", "keyid")
         if not self.mykey:
             raise RuntimeError("No key configured for testing.")
 
-    def testAddService(self):
-        commands = ["""\
-python src/query.py --add --host {0} --service freedombuddy --location
-https://example.invalid""",
-                    """\
-python src/query.py --query --host {0} --service freedombuddy""",
-                    """\
-python src/query.py --list --host {0} --service freedombuddy"""]
-
+    def test_add_service(self):
+        commands = [
+            "python src/query.py -a add --hosting --key {0} \
+--service freedombuddy --location https://example.invalid",
+            "python src/query.py --query --key {0} --service freedombuddy --hosting",
+            "python src/query.py -a list --consuming --key {0} --service freedombuddy"]
+        import pprint
         for command in commands:
+            process = subprocess.Popen(
+                shlex.split(command.format(self.mykey)))
+
             # communicate blocks while each command completes
-            output, error = subprocess.call(
-                shlex.split(command.format(self.mykey))).communicate()
+            (output, error) = process.communicate()
+            # use null instead of None
+            output = output or ""
+            error = error or ""
+            print("Output:")
+            pprint.pprint(output)
+            print("Error:")
+            pprint.pprint(error)
 
         self.assertTrue("example.invalid" in output)
+
+if __name__ == "__main__":
+    unittest.main()

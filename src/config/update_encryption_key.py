@@ -6,14 +6,14 @@ import gnupg
 import sys
 import time
 
+config_file_to_update = gpg_home_directory = email_of_key_to_use = public_key= ""
+
 if len(sys.argv) >= 3:
     config_file_to_update = sys.argv[1]
     gpg_home_directory = sys.argv[2]
 if len(sys.argv) > 3:
     email_of_key_to_use = sys.argv[3]
 
-now = time.time()
-config_file_to_update = gpg_home_directory = email_of_key_to_use = public_key= ""
 gpg = gnupg.GPG(gnupghome=gpg_home_directory)
 now = time.time()
 public_keys = gpg.list_keys(secret=True)
@@ -25,7 +25,7 @@ for key in public_keys:
 
     # pick the first not-expired (matching) key we find.
     # if we don't find a valid key, pick the last key we checked.
-    if public_key and int(key["expires"]) > now:
+    if public_key and (key["expires"] and int(key["expires"]) > now):
         break
 
 config = configparser.ConfigParser()

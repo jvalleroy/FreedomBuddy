@@ -18,10 +18,10 @@ CONFIG_DIRS = ("/usr/share/santiago/",
 def load_default_configs():
     """Load production.cfg from each of the CONFIG_DIRS."""
 
-    return load_configs([x + "production.cfg" for x in CONFIG_DIRS])
+    return load_config([x + "production.cfg" for x in CONFIG_DIRS])
 
 
-def load_configs(config_files):
+def load_config(config_files):
     """Returns data from the named config file."""
 
     config = configparser.ConfigParser()

@@ -126,10 +126,10 @@ data, it is not meant to and should not be used by users.
 
 Must be one of:
 
-- GET: Retrieve data from the service.
-- POST: Set data in the service.
-- PUT: Add a new element.
-- DELETE: Delete the listed item.
+- list/GET: Retrieve data from the service.
+- add/POST: Set data in the service.
+- add/PUT: Add a new element.
+- remove/DELETE: Delete the listed item.
 
 If this option is specified, you must also specify the rest of the
 connection arguments.
@@ -163,8 +163,8 @@ def validate_args(options, parser=None):
     elif options.stop:
         pass
     # if consuming or hosting, then require key.
-    elif (options.key != None and
-             (options.consuming, options.hosting) != (None, None)):
+    elif ((options.key != None) and
+             ((options.consuming, options.hosting) != (None, None))):
         pass
     elif  (options.consuming, options.hosting) != (None, None):
         pass

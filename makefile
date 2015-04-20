@@ -29,7 +29,7 @@ $(CFG_PRODUCTION):
 
 $(CFG_TEST):
 	cp $(CFG_TEMPLATE) $(CFG_TEST)
-	python src/config/update_encryption_key.py $(CFG_TEST) $(KEYS_TEST)
+	python src/config/update_encryption_key.py $(CFG_TEST) ~/.gnupg/
 
 clean:
 	rm -f $(CERTIFICATE) $(CFG_PRODUCTION) $(CFG_TEST)
