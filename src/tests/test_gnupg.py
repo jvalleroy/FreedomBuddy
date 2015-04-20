@@ -1,5 +1,8 @@
-#! /usr/bin/env python # -*- mode: auto-fill; fill-column: 80 -*-
+#! /usr/bin/env python
+# -*- mode: python; mode: auto-fill; fill-column: 80 -*-
+
 """Collection of tests for GPG functions"""
+
 import gnupg
 import src.utilities as utilities
 import unittest

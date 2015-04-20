@@ -141,7 +141,7 @@ if __name__ == "__main__":
         logging.getLogger("cherrypy.error").setLevel(logging.DEBUG)
 
     # load configuration settings
-    config_data = (utilities.load_configs(options.config) if options.config else
+    config_data = (utilities.load_config(options.config) if options.config else
                    utilities.load_default_configs())
 
     mykey = config_data.get("general", "keyid")

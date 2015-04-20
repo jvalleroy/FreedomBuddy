@@ -1,9 +1,10 @@
 #! /usr/bin/env python
 # -*- mode: python; mode: auto-fill; fill-column: 80 -*-
 
-import sys
 import ConfigParser as configparser
 import gnupg
+import sys
+import time
 
 config_file_to_update = gpg_home_directory = email_of_key_to_use = public_key= ""
 
@@ -14,15 +15,18 @@ if len(sys.argv) > 3:
     email_of_key_to_use = sys.argv[3]
 
 gpg = gnupg.GPG(gnupghome=gpg_home_directory)
+now = time.time()
 public_keys = gpg.list_keys(secret=True)
-if(email_of_key_to_use!=""):
-    for key in public_keys:
-        for uid in key['uids']:
-            if(uid.endswith("<"+email_of_key_to_use+">")):
-                public_key = key['fingerprint']
-                break
-else:
-    public_key = public_keys[0]['fingerprint']
+
+for key in public_keys:
+    for uid in key['uids']:
+        if (not email_of_key_to_use) or (uid.endswith("<"+email_of_key_to_use+">")):
+            public_key = key['fingerprint']
+
+    # pick the first not-expired (matching) key we find.
+    # if we don't find a valid key, pick the last key we checked.
+    if public_key and (key["expires"] and int(key["expires"]) > now):
+        break
 
 config = configparser.ConfigParser()
 config.read(config_file_to_update)
