@@ -1,0 +1,21 @@
+# Travis-CI configuration file for FreedomBuddy
+
+language: python
+python:
+  - "2.7"
+
+# Debian packages required
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install python-bjsonrpc python-cheetah python-cherrypy3 python-contract python-dateutil python-gnupg python-httplib2 python-openssl python-routes python-socksipy ssl-cert
+
+virtualenv:
+  system_site_packages: true
+
+# Command to run tests
+script: ./unit_test.sh
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always

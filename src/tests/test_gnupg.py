@@ -19,7 +19,7 @@ class GnuPGWrapper(unittest.TestCase):
     def setUp(self):
 
         self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
-        config = utilities.load_config("src/tests/data/test_gpg.cfg")
+        config = utilities.load_configs("src/tests/data/test_gpg.cfg")
         self.key_id = utilities.safe_load(config, "pgpprocessor", "keyid", 0)
         self.recipient = "joe@foo.bar"
         self.message = {'lol': 'cats'}

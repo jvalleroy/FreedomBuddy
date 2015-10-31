@@ -34,7 +34,7 @@ class RevokedKey(unittest.TestCase):
         self.iterations = 3
         self.gpg_revoked_then_valid = gnupg.GPG(gnupghome=valid)
         self.gpg_revoked = gnupg.GPG(gnupghome=revoked)
-        self.config = utilities.load_config(revoked_config)
+        self.config = utilities.load_configs(revoked_config)
 
 class RevokedKeyTest(RevokedKey):
     """Confirm that data signed with expired keys is not decrypted"""
@@ -98,7 +98,7 @@ class ExpiredKey(unittest.TestCase):
         self.iterations = 3
         self.gpg_expired_then_valid = gnupg.GPG(gnupghome=valid)
         self.gpg_expired = gnupg.GPG(gnupghome=expired)
-        self.config = utilities.load_config(expired_config)
+        self.config = utilities.load_configs(expired_config)
 
 class ValidSubKeyButExpiredSuperKeyTest(ExpiredKey):
     """Confirm that data signed with expired keys is not decrypted"""
@@ -167,7 +167,7 @@ class MessageWrapper(unittest.TestCase):
 
         self.iterations = 3
         self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
-        config = utilities.load_config("src/tests/data/test_gpg.cfg")
+        config = utilities.load_configs("src/tests/data/test_gpg.cfg")
         self.key_id = utilities.safe_load(config, "pgpprocessor", "keyid", 0)
         self.messages = utilities.multi_sign(
             message = "hi",

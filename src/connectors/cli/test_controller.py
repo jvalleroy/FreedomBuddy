@@ -27,7 +27,7 @@ class CliListener(unittest.TestCase):
 
     def setUp(self):
         self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
-        self.keyid = utilities.load_config(
+        self.keyid = utilities.load_configs(
             "src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.test_keyid = "1" * 40
         self.original_update_time = time.time()
@@ -251,7 +251,7 @@ class CliSender(unittest.TestCase):
 
     def setUp(self):
         self.gpg = gnupg.GPG(gnupghome='src/tests/data/test_gpg_home')
-        self.keyid = utilities.load_config(
+        self.keyid = utilities.load_configs(
             "src/tests/data/test_gpg.cfg").get("pgpprocessor", "keyid")
         self.test_keyid = "1111111111111111111111111111111111111111"
         self.santiago = Santiago(
