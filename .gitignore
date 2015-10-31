@@ -6,6 +6,8 @@ current.tar.gz
 freedombuddy.crt
 *.html
 keys/
+*out
+*pid
 predepend
 production.cfg
 publish
