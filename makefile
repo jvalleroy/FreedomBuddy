@@ -16,7 +16,7 @@ $(CERTIFICATE):
 ifeq ($(wildcard $(CERTIFICATE)),)
 	sudo make-ssl-cert generate-default-snakeoil
 	sudo make-ssl-cert /usr/share/ssl-cert/ssleay.cnf $(CERTIFICATE)
-	sudo chgrp 1000 $(CERTIFICATE)
+	sudo chgrp `id -g | awk '{ print $1 }'` $(CERTIFICATE)
 	sudo chmod g+r $(CERTIFICATE)
 	sudo touch $(CERTIFICATE)
 else
