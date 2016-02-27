@@ -95,7 +95,9 @@ class RoundTrip(EndToEnd):
         import pprint
         for command in commands:
             process = subprocess.Popen(
-                shlex.split(command.format(self.mykey)))
+                shlex.split(command.format(self.mykey)),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
 
             # communicate blocks while each command completes
             (output, error) = process.communicate()
