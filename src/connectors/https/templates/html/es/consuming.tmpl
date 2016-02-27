@@ -1,4 +1,5 @@
 #import cgi
+#set $server_dir = $cgi.escape($server_dir)
 <html>
   <head>
     <style>
@@ -13,8 +14,8 @@
     <ul>
       #for $host in $hosts
       #set $host = $cgi.escape($host)
-      <li><a href="/consuming/$host">$host</a>
-        <form method="post" action="/consuming">
+      <li><a href="$server_dir/consuming/$host">$host</a>
+        <form method="post" action="$server_dir/consuming">
           <input type="hidden" name="delete" value="$host" />
           <input type="submit" value="Delete" />
         </form>
@@ -24,7 +25,7 @@
     #end if
 
     <hr />
-    <form method="post" action="/consuming">
+    <form method="post" action="$server_dir/consuming">
       <label>Host: <input name="put" /></label>
       <input type="submit" value="Create New Host" />
     </form>

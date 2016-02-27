@@ -11,12 +11,13 @@ import ast
 from Cheetah.Template import Template
 import cherrypy
 import httplib
-import httplib2, socks
+import socks
 import json
 from optparse import OptionParser
 import os
 import pipes
 import shlex
+import ssl
 import subprocess
 import sys
 import logging
@@ -38,7 +39,7 @@ def command(a_command):
     try:
         jsonstr = str(json.loads(stdout))
     except ValueError:
-        return
+        return {}
 
     return ast.literal_eval(jsonstr)
 
@@ -97,8 +98,7 @@ def stop(*args, **kwargs):
 class HttpsListener(santiago.SantiagoListener):
     """The HTTPS interface FBuddy Listener."""
 
-    def __init__(self, socket_port=0,
-                 ssl_certificate="", ssl_private_key="",
+    def __init__(self, socket_port=0, server_dir='/',
                  *args, **kwargs):
 
         santiago.debug_log("Creating Listener.")
@@ -106,8 +106,7 @@ class HttpsListener(santiago.SantiagoListener):
         super(HttpsListener, self).__init__(*args, **kwargs)
 
         cherrypy.server.socket_port = int(socket_port)
-        cherrypy.server.ssl_certificate = ssl_certificate
-        cherrypy.server.ssl_private_key = ssl_private_key
+        self.server_dir = server_dir
 
         dispatch = cherrypy.dispatch.RoutesDispatcher()
         dispatch.connect("index", "/", self.index)
@@ -171,15 +170,17 @@ class HttpsSender(santiago.SantiagoSender):
             self.proxy.send('POST ' + body)
             self.proxy.close()
         else:
-            connection = httplib.HTTPSConnection(destination.split("//")[1])
-            connection.request("POST", "/", body)
+            destination = urlparse.urlparse(destination)
+            connection = httplib.HTTPSConnection(
+                destination.netloc,
+                context=ssl._create_unverified_context())
+            connection.request("POST", destination.path, body)
             connection.close()
 
 class HttpsMonitor(santiago.SantiagoMonitor):
     """The HTTPS FBuddy Monitor."""
 
-    def __init__(self, socket_port=0,
-                 ssl_certificate="", ssl_private_key="",
+    def __init__(self, socket_port=0, server_dir='/',
                  *args, **kwargs):
 
         santiago.debug_log("Creating Monitor.")
@@ -187,26 +188,27 @@ class HttpsMonitor(santiago.SantiagoMonitor):
         super(HttpsMonitor, self).__init__(*args, **kwargs)
 
         cherrypy.server.socket_port = int(socket_port)
-        cherrypy.server.ssl_certificate = ssl_certificate
-        cherrypy.server.ssl_private_key = ssl_private_key
+        self.server_dir = server_dir
 
         try:
             dispatch = cherrypy.tree.apps[""].config["/"]["request.dispatch"]
         except KeyError:
             dispatch = cherrypy.dispatch.RoutesDispatcher()
 
-        root = HttpRoot(self.santiago)
+        root = HttpRoot(self.santiago, server_dir)
 
         routing_pairs = (
-            ('/hosting/:client/:service', HttpHostedService(self.santiago)),
-            ('/hosting/:client', HttpHostedClient(self.santiago)),
-            ('/hosting', HttpHosting(self.santiago)),
-            ('/consuming/:host/:service', HttpConsumedService(self.santiago)),
-            ('/consuming/:host', HttpConsumedHost(self.santiago)),
-            ('/consuming', HttpConsuming(self.santiago)),
-            ('/query/:host/:service', HttpQuery(self.santiago)),
-            ("/stop", HttpStop(self.santiago)),
-            ("/freedombuddy", root),
+            ('/hosting/:client/:service', HttpHostedService(self.santiago,
+                                                            server_dir)),
+            ('/hosting/:client', HttpHostedClient(self.santiago, server_dir)),
+            ('/hosting', HttpHosting(self.santiago, server_dir)),
+            ('/consuming/:host/:service', HttpConsumedService(self.santiago,
+                                                              server_dir)),
+            ('/consuming/:host', HttpConsumedHost(self.santiago, server_dir)),
+            ('/consuming', HttpConsuming(self.santiago, server_dir)),
+            ('/query/:host/:service', HttpQuery(self.santiago, server_dir)),
+            ('/stop', HttpStop(self.santiago, server_dir)),
+            ('/', root),
             )
 
         for location, handler in routing_pairs:
@@ -246,8 +248,9 @@ class MonitorUtilities(object):
 
     # http://ha.ckers.org/xss.html
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, server_dir='/', *args, **kwargs):
         super(MonitorUtilities, self).__init__(*args, **kwargs)
+        self.server_dir = server_dir
         self.relative_path = "src/connectors/https/templates"
 
     def _parse_query(self, query_input):
@@ -301,7 +304,8 @@ class HttpRoot(santiago.SantiagoMonitor, MonitorUtilities):
     def get(self, **kwargs):
         """Return root template"""
 
-        return self.respond("root.tmpl", {})
+        return self.respond("root.tmpl",
+                            {'server_dir': self.server_dir})
 
 class HttpStop(santiago.Stop, MonitorUtilities):
     """Stop the service."""
@@ -311,7 +315,7 @@ class HttpStop(santiago.Stop, MonitorUtilities):
         """Stop the service."""
 
         command("--stop")
-        raise cherrypy.HTTPRedirect("/freedombuddy")
+        raise cherrypy.HTTPRedirect("/")
 
 class HttpQuery(santiago.Query, MonitorUtilities):
     """A local-only interface to start the outgoing request process.
@@ -332,10 +336,9 @@ class HttpHosting(santiago.Hosting, MonitorUtilities):
     @cherrypy.tools.ip_filter()
     def get(self, **kwargs):
         """Return hosting template"""
-        return self.respond(
-            "hosting.tmpl",
-            command("--action list --hosting"),
-            **kwargs)
+        values = command("--action list --hosting")
+        values['server_dir'] = self.server_dir
+        return self.respond("hosting.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, put="", delete="", **kwargs):
@@ -373,10 +376,9 @@ class HttpHostedClient(santiago.HostedClient, MonitorUtilities):
     @cherrypy.tools.ip_filter()
     def get(self, client, **kwargs):
         """Return hosted client template"""
-        return self.respond(
-            "hostedClient.tmpl",
-            command("--action list --hosting --key {0}".format(client)),
-            **kwargs)
+        values = command("--action list --hosting --key {0}".format(client))
+        values['server_dir'] = self.server_dir
+        return self.respond("hostedClient.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, client, put="", delete="", **kwargs):
@@ -416,11 +418,9 @@ class HttpHostedService(santiago.HostedService, MonitorUtilities):
     @cherrypy.tools.ip_filter()
     def get(self, client, service, **kwargs):
         """Return hosted client locations template"""
-        return self.respond(
-            "hostedService.tmpl",
-            command("--action list --hosting --key {0} --service {1}".format(
-                    client, service)),
-            **kwargs)
+        values = command("--action list --hosting --key {0} --service {1}".format(client, service))
+        values['server_dir'] = self.server_dir
+        return self.respond("hostedService.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, client, service, put="", delete="", **kwargs):
@@ -461,10 +461,9 @@ class HttpConsuming(santiago.Consuming, MonitorUtilities):
     def get(self, **kwargs):
         """Return consuming template"""
 
-        return self.respond(
-            "consuming.tmpl",
-            command("--action list --consuming"),
-            **kwargs)
+        values = command("--action list --consuming")
+        values['server_dir'] = self.server_dir
+        return self.respond("consuming.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, put="", delete="", **kwargs):
@@ -503,10 +502,9 @@ class HttpConsumedHost(santiago.ConsumedHost, MonitorUtilities):
     def get(self, host, **kwargs):
         """Return Consumed host template"""
 
-        return self.respond(
-            "consumedHost.tmpl",
-            command("--action list --consuming --key {0}".format(host)),
-            **kwargs)
+        values = command("--action list --consuming --key {0}".format(host))
+        values['server_dir'] = self.server_dir
+        return self.respond("consumedHost.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, host, put="", delete="", **kwargs):
@@ -547,11 +545,9 @@ class HttpConsumedService(santiago.ConsumedService, MonitorUtilities):
     def get(self, host, service, **kwargs):
         """Return consumed host locations template"""
 
-        return self.respond(
-            "consumedService.tmpl",
-            command("--action list --consuming --key {0} --service {1}".format(
-                    host, service)),
-            **kwargs)
+        values = command("--action list --consuming --key {0} --service {1}".format(host, service))
+        values['server_dir'] = self.server_dir
+        return self.respond("consumedService.tmpl", values, **kwargs)
 
     @cherrypy.tools.ip_filter()
     def post(self, host, service, put="", delete="", **kwargs):
@@ -605,22 +601,22 @@ def parse_config():
 
     return {"listener_port": utilities.safe_load(config, "https-listener",
                                                  "socket_port", "8080"),
+            "listener_dir": utilities.safe_load(config, "https-listener",
+                                                "server_dir", "/"),
             "monitor_port": utilities.safe_load(config, "https-monitor",
                                                 "socket_port", "8081"),
-            "cert": utilities.safe_load(config, "https-monitor",
-                                        "ssl_certificate",
-                                        "data/freedombuddy.crt"),
-            "key": utilities.safe_load(config, "https-monitor",
-                                        "ssl_certificate",
-                                        "data/freedombuddy.crt")}
+            "monitor_dir": utilities.safe_load(config, "https-monitor",
+                                               "server_dir", "/")}
 
-def main(options, listener_port, monitor_port, cert, key,
+def main(options, listener_port, listener_dir, monitor_port, monitor_dir,
          start_httpserver = None):
     """Parse options and start a monitor or listener.
 
     options: The options parsed from the command line.
 
     port: The port to listen for connections on.
+
+    dir: Root URL for the server.
 
     start_httpserver: Useful for testing.  If False, don't start the HTTP
     server.
@@ -632,8 +628,7 @@ def main(options, listener_port, monitor_port, cert, key,
         options.outgoing = options.outgoing.strip("'")
         HttpsSender().outgoing_request(options.outgoing, options.destination)
     elif options.listen:
-        HttpsListener(socket_port=listener_port,
-                      ssl_certificate=cert, ssl_private_key=key)
+        HttpsListener(socket_port=listener_port, server_dir=listener_dir)
         if start_httpserver == None:
             start_httpserver = True
     elif options.monitor:
@@ -641,7 +636,7 @@ def main(options, listener_port, monitor_port, cert, key,
         santiago.locale = "en"
         santiago.debug_log = lambda *args, **kwargs: None
         HttpsMonitor(santiago=santiago, socket_port=monitor_port,
-                     ssl_certificate=cert, ssl_private_key=key)
+                     server_dir=monitor_dir)
         if start_httpserver == None:
             start_httpserver = True
     else:

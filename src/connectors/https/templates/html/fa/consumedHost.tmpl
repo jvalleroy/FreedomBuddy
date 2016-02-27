@@ -1,4 +1,5 @@
 #import cgi
+#set $server_dir = $cgi.escape($server_dir)
 #set $host = $cgi.escape($host)
 <html>
   <head>
@@ -9,16 +10,16 @@
     </style>
   </head>
   <body>
-    <p>You are <a href="/consuming">consuming</a> services from
+    <p>You are <a href="$server_dir/consuming">consuming</a> services from
       $host:</p>
     #if $services
     <ul>
       #for $service in $services
       #set $service = $cgi.escape($service)
       <li>
-        <a href="/consuming/$host/$service">
+        <a href="$server_dir/consuming/$host/$service">
           $service</a>
-        <form method="post" action="/consuming/$host">
+        <form method="post" action="$server_dir/consuming/$host">
           <input type="hidden" name="delete" value="$service" />
           <input type="submit" value="Delete" />
         </form>
@@ -27,7 +28,7 @@
     </ul>
     #end if
     <hr />
-    <form method="post" action="/consuming/$host">
+    <form method="post" action="$server_dir/consuming/$host">
       <label>Service: <input name="put" /></label>
       <input type="submit" value="Create New Service" />
     </form>

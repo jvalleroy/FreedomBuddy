@@ -1,4 +1,5 @@
 #import cgi
+#set $server_dir = $cgi.escape($server_dir)
 #set $host = $cgi.escape($host)
 #set $service = $cgi.escape($service)
 <html>
@@ -10,9 +11,9 @@
     </style>
   </head>
   <body>
-    <p>You are <a href="/consuming">consuming</a> $service from
-      <a href="/consuming/$host">$host</a> at:</p>
-    <form method="post" action="/query/$host/$service">
+    <p>You are <a href="$server_dir/consuming">consuming</a> $service from
+      <a href="$server_dir/consuming/$host">$host</a> at:</p>
+    <form method="post" action="$server_dir/query/$host/$service">
       <input type="submit" value="Learn More Locations?" />
     </form>
     #if $locations
@@ -22,7 +23,7 @@
       <li>
         <a href="$location">$location</a>
         <form method="post"
-              action="/consuming/$host/$service">
+              action="$server_dir/consuming/$host/$service">
           <input type="hidden" name="delete" value="$location" />
           <input type="submit" value="Delete" />
         </form>
@@ -32,7 +33,7 @@
     #end if
     <hr />
     <form method="post"
-          action="/consuming/$host/$service">
+          action="$server_dir/consuming/$host/$service">
       <label>Location: <input name="put" /></label>
       <input type="submit" value="Create New Location" />
     </form>
